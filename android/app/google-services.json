@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "121408025162",
+    "project_id": "trash-scout-3c117",
+    "storage_bucket": "trash-scout-3c117.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:121408025162:android:21c5666569ead8caceacb3",
+        "android_client_info": {
+          "package_name": "com.example.trashscout"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAiSb36r_dBENxcMCpDh4xGsBozUvvSIX0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
