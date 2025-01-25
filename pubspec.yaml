@@ -44,7 +44,7 @@ dependencies:
   http: ^1.2.1
   provider: ^6.1.2
   skeletonizer: ^1.2.0
-  geolocator: ^12.0.0
+  geolocator: ^13.0.2
   image_picker: ^1.1.2
   url_launcher: ^6.3.0
   map_launcher: ^3.3.1
