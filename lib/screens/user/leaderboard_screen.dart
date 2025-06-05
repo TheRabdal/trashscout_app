@@ -285,9 +285,7 @@ class UserCurrentRank extends StatelessWidget {
               shape: BoxShape.circle,
               image: DecorationImage(
                 fit: BoxFit.cover,
-                image: NetworkImage(
-                  user['profileImageUrl'],
-                ),
+                image: NetworkImage(user['profileImageUrl']),
               ),
             ),
           ),
