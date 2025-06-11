@@ -372,10 +372,9 @@ class _TrashCategoryState extends State<TrashCategory> {
       'Logam',
       'Kaca',
       'Elektronik',
-      'Berbahaya',
-      'Potensi Bahaya',
+      'Medis',
       'Beracun',
-      'Sampah Masyarakat',
+      'Berbahaya',
     ];
 
     return Container(

@@ -221,7 +221,7 @@ class _AdminScreenState extends State<AdminHomeScreen> {
                       ),
                 SizedBox(height: 15),
                 Text(
-                  'Laporan Terbaru:',
+                  'Laporan Sampah Berbahaya:',
                   style: boldTextStyle.copyWith(
                     color: blackColor,
                     fontSize: 20,
