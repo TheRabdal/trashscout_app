@@ -5,14 +5,14 @@ import 'package:trash_scout/shared/theme/theme.dart';
 import 'package:trash_scout/shared/widgets/admin/map_status.dart';
 import 'package:trash_scout/shared/widgets/admin/report_item_widget.dart';
 
-class ReportManageScreen extends StatefulWidget {
-  const ReportManageScreen({super.key});
+class AdminPriorityScreen extends StatefulWidget {
+  const AdminPriorityScreen({super.key});
 
   @override
-  State<ReportManageScreen> createState() => _ReportManageScreenState();
+  State<AdminPriorityScreen> createState() => _AdminPriorityScreenState();
 }
 
-class _ReportManageScreenState extends State<ReportManageScreen> {
+class _AdminPriorityScreenState extends State<AdminPriorityScreen> {
   String _selectedStatus = 'Semua';
   List<Map<String, dynamic>> reports = [];
   bool _isLoading = true;
@@ -20,10 +20,10 @@ class _ReportManageScreenState extends State<ReportManageScreen> {
   @override
   void initState() {
     super.initState();
-    _getReportsByStatus(_selectedStatus);
+    _getReportsByStatus();
   }
 
-  Future<void> _getReportsByStatus(String status) async {
+  Future<void> _getReportsByStatus() async {
     if (mounted) {
       setState(() {
         _isLoading = true;
@@ -39,11 +39,6 @@ class _ReportManageScreenState extends State<ReportManageScreen> {
         Query query = userDoc.reference.collection('reports');
         String userName = userDoc['name'];
 
-        if (status != 'Semua') {
-          String firestoreStatus = mapStatusToFirestore(status);
-          query = query.where('status', isEqualTo: firestoreStatus);
-        }
-
         QuerySnapshot reportsSnapshot =
             await query.orderBy('date', descending: true).get();
 
@@ -51,23 +46,45 @@ class _ReportManageScreenState extends State<ReportManageScreen> {
           Map<String, dynamic> reportData =
               reportDoc.data() as Map<String, dynamic>;
 
-          reportData['date'] = (reportData['date'] as Timestamp).toDate();
-          reportData['userId'] = userDoc.id;
-          reportData['reportId'] = reportDoc.id;
-          reportData['userName'] = userName;
-          filteredReports.add(reportData);
+          // Ambil kategori dari laporan
+          List<String> categories =
+              List<String>.from(reportData['categories'] ?? []);
+          // Filter hanya jika ada kategori Medis, Beracun, atau Berbahaya
+          if (categories.contains('Medis') ||
+              categories.contains('Beracun') ||
+              categories.contains('Berbahaya')) {
+            reportData['date'] = (reportData['date'] as Timestamp).toDate();
+            reportData['userId'] = userDoc.id;
+            reportData['reportId'] = reportDoc.id;
+            reportData['userName'] = userName;
+            filteredReports.add(reportData);
+          }
         }
       }
 
-      print('Reports retrieved: ${filteredReports.length}');
       if (mounted) {
         setState(() {
           reports = filteredReports;
+          // Urutkan dengan metode SAW
+          reports.sort((a, b) {
+            double getSAWScore(List<String> categories) {
+              double score = 0.0;
+              if (categories.contains('Beracun')) score += 0.5;
+              if (categories.contains('Berbahaya')) score += 0.3;
+              if (categories.contains('Medis')) score += 0.2;
+              return score;
+            }
+
+            final aScore =
+                getSAWScore(List<String>.from(a['categories'] ?? []));
+            final bScore =
+                getSAWScore(List<String>.from(b['categories'] ?? []));
+            return bScore.compareTo(aScore); // descending
+          });
           _isLoading = false;
         });
       }
     } catch (e) {
-      print('Error getting reports: $e');
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -80,13 +97,13 @@ class _ReportManageScreenState extends State<ReportManageScreen> {
     if (mounted) {
       setState(() {
         _selectedStatus = status;
-        _getReportsByStatus(status);
+        _getReportsByStatus();
       });
     }
   }
 
   void _refreshReports() {
-    _getReportsByStatus(_selectedStatus);
+    _getReportsByStatus();
   }
 
   @override
@@ -97,13 +114,35 @@ class _ReportManageScreenState extends State<ReportManageScreen> {
         scrolledUnderElevation: 0,
         backgroundColor: backgroundColor,
         title: Text(
-          'Semua Laporan',
+          'Sampah Prioritas',
           style: semiBoldTextStyle.copyWith(
             color: blackColor,
             fontSize: 26,
           ),
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.info_outline, color: blackColor),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text('Informasi Prioritas Sampah'),
+                  content: Text(
+                    'Laporan prioritas adalah laporan dengan kategori: Beracun, Berbahaya, atau Medis. Urutan prioritas menggunakan metode Simple Additive Weighting (SAW) dengan bobot: Beracun=0.5, Berbahaya=0.3, Medis=0.2. Laporan dengan skor tertinggi akan tampil paling atas.',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text('Tutup'),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(6.0), // Tinggi garis
           child: Container(
@@ -119,11 +158,6 @@ class _ReportManageScreenState extends State<ReportManageScreen> {
         child: Column(
           children: [
             SizedBox(height: 16),
-            ReportFilterByStatus(
-              selectedStatus: _selectedStatus,
-              onStatusChanged: _updateStatus,
-            ),
-            SizedBox(height: 10),
             Expanded(
               child: _isLoading
                   ? Center(
@@ -134,7 +168,7 @@ class _ReportManageScreenState extends State<ReportManageScreen> {
                   : reports.isEmpty
                       ? Center(
                           child: Text(
-                            'Belum ada laporan untuk status ini',
+                            'Belum ada laporan sampah prioritas',
                             style: regularTextStyle.copyWith(
                               color: darkGreyColor,
                               fontSize: 16,

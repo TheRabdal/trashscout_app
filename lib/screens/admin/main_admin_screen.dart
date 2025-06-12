@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:trash_scout/provider/bottom_navigation_provider.dart';
 import 'package:trash_scout/screens/admin/admin_home_screen.dart';
 import 'package:trash_scout/screens/admin/report_manage_screen.dart';
+import 'package:trash_scout/screens/admin/admin_priority_screen.dart';
 import 'package:trash_scout/shared/theme/theme.dart';
 import 'package:trash_scout/shared/widgets/user/custom_bottom_navigation_item.dart';
 
@@ -33,6 +34,8 @@ Widget buildContent(BuildContext context) {
     case 0:
       return AdminHomeScreen();
     case 1:
+      return AdminPriorityScreen();
+    case 2:
       return ReportManageScreen();
     default:
       return AdminHomeScreen();
@@ -73,9 +76,18 @@ class AdminBottomNavigation extends StatelessWidget {
             GestureDetector(
               onTap: () => navigationProvider.currentIndex = 1,
               child: CustomBottomNavigationItem(
+                title: 'Priority',
+                imageUrl: 'assets/patokan_lokasi_icon.png',
+                index: 1,
+                specialColor: Colors.red,
+              ),
+            ),
+            GestureDetector(
+              onTap: () => navigationProvider.currentIndex = 2,
+              child: CustomBottomNavigationItem(
                 title: 'Reports',
                 imageUrl: 'assets/document_icon.png',
-                index: 1,
+                index: 2,
               ),
             ),
           ],

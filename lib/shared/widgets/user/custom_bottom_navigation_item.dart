@@ -7,11 +7,13 @@ class CustomBottomNavigationItem extends StatelessWidget {
   final String imageUrl;
   final int index;
   final String title;
+  final Color? specialColor;
 
   const CustomBottomNavigationItem({
     required this.imageUrl,
     required this.index,
     required this.title,
+    this.specialColor,
   });
 
   @override
@@ -19,6 +21,8 @@ class CustomBottomNavigationItem extends StatelessWidget {
     final bottomNavigationProvider =
         Provider.of<BottomNavigationProvider>(context);
     final isActive = bottomNavigationProvider.currentIndex == index;
+    final Color activeColor = specialColor ?? lightGreenColor;
+    final Color inactiveColor = specialColor != null ? blackColor : blackColor;
 
     return Column(
       children: [
@@ -27,12 +31,12 @@ class CustomBottomNavigationItem extends StatelessWidget {
           imageUrl,
           width: 30,
           height: 30,
-          color: isActive ? lightGreenColor : blackColor,
+          color: isActive ? activeColor : inactiveColor,
         ),
         Text(
           title,
           style: mediumTextStyle.copyWith(
-            color: isActive ? lightGreenColor : blackColor,
+            color: isActive ? activeColor : inactiveColor,
             fontSize: 11,
           ),
         ),
