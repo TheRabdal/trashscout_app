@@ -13,7 +13,6 @@ class AdminPriorityScreen extends StatefulWidget {
 }
 
 class _AdminPriorityScreenState extends State<AdminPriorityScreen> {
-  String _selectedStatus = 'Semua';
   List<Map<String, dynamic>> reports = [];
   bool _isLoading = true;
 
@@ -90,15 +89,6 @@ class _AdminPriorityScreenState extends State<AdminPriorityScreen> {
           _isLoading = false;
         });
       }
-    }
-  }
-
-  void _updateStatus(String status) {
-    if (mounted) {
-      setState(() {
-        _selectedStatus = status;
-        _getReportsByStatus();
-      });
     }
   }
 
