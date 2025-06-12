@@ -140,7 +140,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                     padding: EdgeInsets.zero,
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
-                    itemCount: 5,
+                    itemCount: users.length < 5 ? users.length : 5,
                     itemBuilder: (context, index) {
                       return LeaderboardItem(
                         user: users[index],
