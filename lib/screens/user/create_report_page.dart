@@ -367,14 +367,8 @@ class _TrashCategoryState extends State<TrashCategory> {
   Widget build(BuildContext context) {
     List<String> categories = [
       'Organik',
-      'Plastik',
-      'Kertas & Karton',
-      'Logam',
-      'Kaca',
-      'Elektronik',
-      'Medis',
-      'Beracun',
-      'Berbahaya',
+      'Anorganik',
+      'B3',
     ];
 
     return Container(
