@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:trash_scout/shared/theme/theme.dart';
 import 'package:trash_scout/shared/widgets/admin/map_status.dart';
 import 'package:trash_scout/shared/widgets/admin/report_item_widget.dart';
+import 'package:trash_scout/screens/admin/saw_detail_screen.dart';
 
 class AdminPriorityScreen extends StatefulWidget {
   const AdminPriorityScreen({super.key});
@@ -200,6 +201,35 @@ class _AdminPriorityScreenState extends State<AdminPriorityScreen> {
           ],
         ),
       ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 90.0, right: 12.0),
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SawDetailScreen(),
+              ),
+            );
+          },
+          backgroundColor: Colors.white,
+          elevation: 6,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Image.asset(
+              'assets/logo_without_text.png',
+              width: 32,
+              height: 32,
+              fit: BoxFit.contain,
+            ),
+          ),
+          tooltip: 'SAW',
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
