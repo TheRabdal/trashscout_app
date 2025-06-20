@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:trash_scout/shared/theme/theme.dart';
 import 'package:trash_scout/shared/widgets/admin/map_status.dart';
-import 'package:trash_scout/shared/widgets/admin/report_item_widget.dart';
 import 'dart:ui';
 import 'package:trash_scout/services/firestore_service.dart';
 

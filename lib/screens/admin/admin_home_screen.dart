@@ -7,7 +7,6 @@ import 'package:trash_scout/services/firestore_service.dart';
 import 'package:trash_scout/shared/theme/theme.dart';
 import 'package:trash_scout/shared/widgets/admin/admin_recap_widget.dart';
 import 'package:trash_scout/shared/widgets/admin/map_status.dart';
-import 'package:trash_scout/shared/widgets/admin/report_item_widget.dart';
 import 'dart:ui';
 import 'package:trash_scout/screens/admin/admin_detail_report.dart';
 
