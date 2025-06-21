@@ -13,6 +13,7 @@ class ReportHistory extends StatelessWidget {
   final String latitude;
   final String longitude;
   final String locationDetail;
+  final int weightRating;
 
   const ReportHistory({
     required this.reportTitle,
@@ -25,6 +26,7 @@ class ReportHistory extends StatelessWidget {
     required this.latitude,
     required this.longitude,
     required this.locationDetail,
+    required this.weightRating,
   });
 
   @override
@@ -118,6 +120,7 @@ class ReportHistory extends StatelessWidget {
                     latitude: latitude,
                     longitude: longitude,
                     locationDetail: locationDetail,
+                    weightRating: weightRating,
                   ),
                 ),
               );

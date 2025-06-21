@@ -1,4 +1,6 @@
+saya ingin namanya diinput manual tetapi dengan menggunakan dropdownbutton
 
+pada bagian saw_detail_screen.dart saya ingin membuat perhitungan saw dan buatkan saya kolom untuk menginput alternatif nama setiap user, buatkan saya untuk menginput kriteria dari setiap rating sampah B3, Anorganik, Organik. contoh perhitungannya seperti pada gambar yang saya berikan!
 
 
 

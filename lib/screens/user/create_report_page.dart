@@ -28,6 +28,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
   String? _longitude;
   final TextEditingController _locationDetailController =
       TextEditingController();
+  int? _selectedRating;
 
   void _handleCategoriesChanged(List<String> category) {
     if (mounted) {
@@ -170,7 +171,8 @@ class _CreateReportPageState extends State<CreateReportPage> {
           _selectedImage != null &&
           _latitude != null &&
           _longitude != null &&
-          locationDetail.isNotEmpty) {
+          locationDetail.isNotEmpty &&
+          _selectedRating != null) {
         try {
           User? user = FirebaseAuth.instance.currentUser;
           if (user != null) {
@@ -194,6 +196,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
               'locationDetail': locationDetail,
               'status': 'Dibuat',
               'date': Timestamp.now(),
+              'weightRating': _selectedRating,
             });
 
             Navigator.pushReplacement(
@@ -217,7 +220,8 @@ class _CreateReportPageState extends State<CreateReportPage> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Harap isi semua field"),
+            content:
+                Text("Harap isi semua field dan pilih rating berat sampah"),
           ),
         );
       }
@@ -263,6 +267,15 @@ class _CreateReportPageState extends State<CreateReportPage> {
                 TrashCategory(onCategoryChanged: _handleCategoriesChanged),
                 ReportDescForm(
                   descController: _descController,
+                ),
+                SizedBox(height: 15),
+                Text('Perkiraan Berat Sampah',
+                    style: mediumTextStyle.copyWith(
+                        color: blackColor, fontSize: 18)),
+                SizedBox(height: 6),
+                _WeightRatingSelector(
+                  selectedRating: _selectedRating,
+                  onChanged: (val) => setState(() => _selectedRating = val),
                 ),
                 UploadPhoto(
                   onFileChanged: _handleImageChanged,
@@ -773,6 +786,37 @@ class _SelectLocationState extends State<SelectLocation> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _WeightRatingSelector extends StatelessWidget {
+  final int? selectedRating;
+  final ValueChanged<int> onChanged;
+  const _WeightRatingSelector(
+      {required this.selectedRating, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final List<Map<String, dynamic>> options = [
+      {'label': '< 1 kg', 'rating': 4, 'desc': 'Baik'},
+      {'label': '1 – 2 kg', 'rating': 3, 'desc': 'Cukup'},
+      {'label': '3 – 4 kg', 'rating': 2, 'desc': 'Buruk'},
+      {'label': '> 4 kg', 'rating': 1, 'desc': 'Sangat buruk'},
+    ];
+    return Column(
+      children: options.map((opt) {
+        return RadioListTile<int>(
+          value: opt['rating'],
+          groupValue: selectedRating,
+          onChanged: (val) => onChanged(val!),
+          title:
+              Text(opt['label'], style: mediumTextStyle.copyWith(fontSize: 16)),
+          subtitle:
+              Text(opt['desc'], style: regularTextStyle.copyWith(fontSize: 13)),
+          activeColor: darkGreenColor,
+        );
+      }).toList(),
     );
   }
 }

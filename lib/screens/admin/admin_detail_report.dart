@@ -13,6 +13,7 @@ class AdminDetailReport extends StatelessWidget {
   final String longitude;
   final String locationDetail;
   final String user;
+  final int weightRating;
 
   const AdminDetailReport({
     required this.reportTitle,
@@ -25,6 +26,7 @@ class AdminDetailReport extends StatelessWidget {
     required this.longitude,
     required this.locationDetail,
     required this.user,
+    required this.weightRating,
   });
 
   Future<void> _launchMap() async {
@@ -120,6 +122,7 @@ class AdminDetailReport extends StatelessWidget {
                 longitude: longitude,
                 onLaunchMap: _launchMap,
                 locationDetail: locationDetail,
+                weightRating: weightRating,
               ),
             ),
             SizedBox(height: 30),
@@ -141,6 +144,7 @@ class ReportDetailContent extends StatelessWidget {
   final String longitude;
   final VoidCallback onLaunchMap;
   final String locationDetail;
+  final int weightRating;
 
   const ReportDetailContent({
     super.key,
@@ -154,7 +158,75 @@ class ReportDetailContent extends StatelessWidget {
     required this.longitude,
     required this.onLaunchMap,
     required this.locationDetail,
+    required this.weightRating,
   });
+
+  Widget _buildWeightRatingBadge(int rating) {
+    String label;
+    String desc;
+    Color color;
+    IconData icon;
+    switch (rating) {
+      case 4:
+        label = '< 1 kg';
+        desc = 'Baik';
+        color = Colors.green;
+        icon = Icons.sentiment_very_satisfied;
+        break;
+      case 3:
+        label = '1 – 2 kg';
+        desc = 'Cukup';
+        color = Colors.lightGreen;
+        icon = Icons.sentiment_satisfied;
+        break;
+      case 2:
+        label = '3 – 4 kg';
+        desc = 'Buruk';
+        color = Colors.orange;
+        icon = Icons.sentiment_dissatisfied;
+        break;
+      case 1:
+      default:
+        label = '> 4 kg';
+        desc = 'Sangat Buruk';
+        color = Colors.red;
+        icon = Icons.sentiment_very_dissatisfied;
+        break;
+    }
+    return Container(
+      margin: EdgeInsets.only(bottom: 14),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: color, width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.08),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 28),
+          SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label,
+                  style:
+                      semiBoldTextStyle.copyWith(color: color, fontSize: 18)),
+              Text(desc,
+                  style: regularTextStyle.copyWith(color: color, fontSize: 14)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -196,6 +268,7 @@ class ReportDetailContent extends StatelessWidget {
           ),
         ),
         SizedBox(height: 16),
+        _buildWeightRatingBadge(weightRating),
         Text(
           'Kategori',
           style: semiBoldTextStyle.copyWith(
@@ -217,14 +290,14 @@ class ReportDetailContent extends StatelessWidget {
                 vertical: 5,
               ),
               decoration: BoxDecoration(
-                color: darkGreenColor,
+                color: category == 'B3' ? Colors.red : darkGreenColor,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Center(
                 child: Text(
                   category,
                   style: regularTextStyle.copyWith(
-                    color: whiteColor,
+                    color: Colors.white,
                     fontSize: 15,
                   ),
                   softWrap: false,

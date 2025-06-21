@@ -84,4 +84,15 @@ class FirestoreService {
     bool isDone = newStatus == 'Selesai';
     await addNotification(userId, reportTitle, isDone);
   }
+
+  Future<List<Map<String, dynamic>>> getAllUsers() async {
+    QuerySnapshot snapshot = await _firestore.collection('users').get();
+    return snapshot.docs
+        .map((doc) => {
+              'uid':
+                  doc.data().toString().contains('uid') ? doc['uid'] : doc.id,
+              'name': doc['name'],
+            })
+        .toList();
+  }
 }

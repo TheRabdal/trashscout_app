@@ -203,9 +203,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           description: report['description'],
                           date: formattedDate,
                           categories: categories,
-                          latitude: report['latitude'],
-                          longitude: report['longitude'],
+                          latitude: report['latitude'].toString(),
+                          longitude: report['longitude'].toString(),
                           locationDetail: report['locationDetail'],
+                          weightRating: (report['weightRating'] is int)
+                              ? report['weightRating']
+                              : int.tryParse(
+                                      report['weightRating'].toString()) ??
+                                  1,
                         );
                       },
                     );
@@ -228,6 +233,8 @@ class _HomeScreenState extends State<HomeScreen> {
         return lightGreenColor;
       case 'Selesai':
         return Color(0xff6BC2A2);
+      case 'B3':
+        return Colors.red;
       default:
         return darkGreyColor;
     }

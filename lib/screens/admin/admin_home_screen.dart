@@ -751,6 +751,7 @@ class _HDReportCard extends StatelessWidget {
               latitude: report['latitude'],
               longitude: report['longitude'],
               locationDetail: report['locationDetail'],
+              weightRating: report['weightRating'],
             ),
           ),
         );

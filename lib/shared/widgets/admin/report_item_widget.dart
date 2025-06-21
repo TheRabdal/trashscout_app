@@ -19,6 +19,7 @@ class ReportItemWidget extends StatelessWidget {
   final String locationDetail;
   final String user;
   final VoidCallback? onTap;
+  final int weightRating;
 
   const ReportItemWidget({
     required this.reportTitle,
@@ -35,6 +36,7 @@ class ReportItemWidget extends StatelessWidget {
     required this.longitude,
     required this.user,
     required this.locationDetail,
+    required this.weightRating,
     this.onTap,
   });
 
@@ -58,6 +60,7 @@ class ReportItemWidget extends StatelessWidget {
                     latitude: latitude,
                     longitude: longitude,
                     locationDetail: locationDetail,
+                    weightRating: weightRating,
                   ),
                 ),
               );

@@ -123,6 +123,7 @@ class _SeeAllHistoryScreenState extends State<SeeAllHistoryScreen> {
                               latitude: report['latitude'],
                               longitude: report['longitude'],
                               locationDetail: report['locationDetail'],
+                              weightRating: report['weightRating'],
                             );
                           }).toList(),
                         ],
@@ -146,6 +147,8 @@ class _SeeAllHistoryScreenState extends State<SeeAllHistoryScreen> {
         return lightGreenColor;
       case 'Selesai':
         return Color(0xff6BC2A2);
+      case 'B3':
+        return Colors.red;
       default:
         return darkGreyColor;
     }
