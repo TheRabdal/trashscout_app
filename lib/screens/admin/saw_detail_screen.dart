@@ -42,6 +42,20 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
   final List<TextEditingController> nameControllers =
       List.generate(5, (_) => TextEditingController());
 
+  // Tambahan: List pilihan nama statis
+  final List<String> staticNames = [
+    'Andi',
+    'Budi',
+    'Citra',
+    'Dewi',
+    'Eka',
+    'Lainnya...'
+  ];
+  // Untuk menyimpan pilihan dropdown per baris
+  final List<String?> selectedNames = List.generate(5, (_) => null);
+  // Untuk menandai apakah input manual aktif per baris
+  final List<bool> isManualInput = List.generate(5, (_) => false);
+
   // Kriteria rating controller: [user][kriteria]
   final List<List<TextEditingController>> criteriaControllers = List.generate(
     5,
@@ -66,9 +80,18 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
     });
     final users = await FirestoreService().getAllUsers();
     setState(() {
-      userList = users.take(5).toList();
-      for (int i = 0; i < userList.length; i++) {
-        nameControllers[i].text = userList[i]['name'] ?? '';
+      userList = users;
+      // Reset selectedNames dan isManualInput agar tidak error
+      for (int i = 0; i < 5; i++) {
+        if (i < userList.length) {
+          selectedNames[i] = userList[i]['name'];
+          isManualInput[i] = false;
+          nameControllers[i].text = userList[i]['name'] ?? '';
+        } else {
+          selectedNames[i] = null;
+          isManualInput[i] = true;
+          nameControllers[i].clear();
+        }
       }
       _isLoadingUser = false;
     });
@@ -178,182 +201,464 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     SectionCard(
-                      title: 'Tabel Bobot Preferensi',
-                      child: DataTable(
-                        columns: [
-                          DataColumn(
-                              label: Text('Kriteria', style: mediumTextStyle)),
-                          DataColumn(
-                              label: Text('Bobot', style: mediumTextStyle)),
-                        ],
-                        rows: [
-                          DataRow(cells: [
-                            DataCell(Text('Sampah B3')),
-                            DataCell(Text('0.5'))
-                          ]),
-                          DataRow(cells: [
-                            DataCell(Text('Anorganik')),
-                            DataCell(Text('0.3'))
-                          ]),
-                          DataRow(cells: [
-                            DataCell(Text('Organik')),
-                            DataCell(Text('0.2'))
-                          ]),
+                      title: 'Bobot Preferensi',
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.balance,
+                                  color: darkGreenColor, size: 20),
+                              SizedBox(width: 8),
+                              Text('Bobot Preferensi',
+                                  style: boldTextStyle.copyWith(
+                                      fontSize: 16, color: darkGreenColor)),
+                            ],
+                          ),
+                          SizedBox(height: 8),
+                          DataTable(
+                            headingRowColor: WidgetStateProperty.all(
+                                lightGreenColor.withOpacity(0.18)),
+                            dataRowMinHeight: 36,
+                            dataRowMaxHeight: 44,
+                            columnSpacing: 24,
+                            border: TableBorder.all(
+                                color: lightGreyColor, width: 1),
+                            columns: [
+                              DataColumn(
+                                  label:
+                                      Text('Kriteria', style: boldTextStyle)),
+                              DataColumn(
+                                  label: Text('Bobot', style: boldTextStyle)),
+                            ],
+                            rows: [
+                              DataRow(cells: [
+                                DataCell(Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 4, horizontal: 8),
+                                    child: Text('Sampah B3',
+                                        style: regularTextStyle))),
+                                DataCell(Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 4, horizontal: 8),
+                                    child:
+                                        Text('0.5', style: regularTextStyle))),
+                              ]),
+                              DataRow(cells: [
+                                DataCell(Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 4, horizontal: 8),
+                                    child: Text('Anorganik',
+                                        style: regularTextStyle))),
+                                DataCell(Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 4, horizontal: 8),
+                                    child:
+                                        Text('0.3', style: regularTextStyle))),
+                              ]),
+                              DataRow(cells: [
+                                DataCell(Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 4, horizontal: 8),
+                                    child: Text('Organik',
+                                        style: regularTextStyle))),
+                                DataCell(Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 4, horizontal: 8),
+                                    child:
+                                        Text('0.2', style: regularTextStyle))),
+                              ]),
+                            ],
+                          ),
                         ],
                       ),
                     ),
                     SectionCard(
                       title: 'Panduan Rating',
-                      child: DataTable(
-                        columns: [
-                          DataColumn(
-                              label: Text('Deskripsi', style: mediumTextStyle)),
-                          DataColumn(
-                              label: Text('Rating', style: mediumTextStyle)),
-                          DataColumn(
-                              label:
-                                  Text('Keterangan', style: mediumTextStyle)),
-                        ],
-                        rows: [
-                          DataRow(cells: [
-                            DataCell(Text('< 1 kg')),
-                            DataCell(Text('4')),
-                            DataCell(Text('Baik'))
-                          ]),
-                          DataRow(cells: [
-                            DataCell(Text('1-2 kg')),
-                            DataCell(Text('3')),
-                            DataCell(Text('Cukup'))
-                          ]),
-                          DataRow(cells: [
-                            DataCell(Text('3-4 kg')),
-                            DataCell(Text('2')),
-                            DataCell(Text('Buruk'))
-                          ]),
-                          DataRow(cells: [
-                            DataCell(Text('> 4 kg')),
-                            DataCell(Text('1')),
-                            DataCell(Text('Sangat Buruk'))
-                          ]),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.info_outline,
+                                  color: darkGreenColor, size: 20),
+                              SizedBox(width: 8),
+                              Text('Panduan Rating',
+                                  style: boldTextStyle.copyWith(
+                                      fontSize: 16, color: darkGreenColor)),
+                            ],
+                          ),
+                          SizedBox(height: 8),
+                          DataTable(
+                            headingRowColor: WidgetStateProperty.all(
+                                lightGreenColor.withOpacity(0.18)),
+                            dataRowMinHeight: 36,
+                            dataRowMaxHeight: 44,
+                            columnSpacing: 24,
+                            border: TableBorder.all(
+                                color: lightGreyColor, width: 1),
+                            columns: [
+                              DataColumn(
+                                  label:
+                                      Text('Deskripsi', style: boldTextStyle)),
+                              DataColumn(
+                                  label: Text('Rating', style: boldTextStyle)),
+                              DataColumn(
+                                  label:
+                                      Text('Keterangan', style: boldTextStyle)),
+                            ],
+                            rows: [
+                              DataRow(cells: [
+                                DataCell(Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 4, horizontal: 8),
+                                    child: Text('< 1 kg',
+                                        style: regularTextStyle))),
+                                DataCell(Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 4, horizontal: 8),
+                                    child: Text('4', style: regularTextStyle))),
+                                DataCell(Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 4, horizontal: 8),
+                                    child:
+                                        Text('Baik', style: regularTextStyle))),
+                              ]),
+                              DataRow(cells: [
+                                DataCell(Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 4, horizontal: 8),
+                                    child: Text('1-2 kg',
+                                        style: regularTextStyle))),
+                                DataCell(Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 4, horizontal: 8),
+                                    child: Text('3', style: regularTextStyle))),
+                                DataCell(Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 4, horizontal: 8),
+                                    child: Text('Cukup',
+                                        style: regularTextStyle))),
+                              ]),
+                              DataRow(cells: [
+                                DataCell(Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 4, horizontal: 8),
+                                    child: Text('3-4 kg',
+                                        style: regularTextStyle))),
+                                DataCell(Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 4, horizontal: 8),
+                                    child: Text('2', style: regularTextStyle))),
+                                DataCell(Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 4, horizontal: 8),
+                                    child: Text('Buruk',
+                                        style: regularTextStyle))),
+                              ]),
+                              DataRow(cells: [
+                                DataCell(Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 4, horizontal: 8),
+                                    child: Text('> 4 kg',
+                                        style: regularTextStyle))),
+                                DataCell(Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 4, horizontal: 8),
+                                    child: Text('1', style: regularTextStyle))),
+                                DataCell(Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 4, horizontal: 8),
+                                    child: Text('Sangat Buruk',
+                                        style: regularTextStyle))),
+                              ]),
+                            ],
+                          ),
                         ],
                       ),
                     ),
                     SectionCard(
                       title: 'Input Alternatif & Kriteria',
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
-                          columnSpacing: 24,
-                          columns: [
-                            DataColumn(
-                                label: Column(
-                              children: [
-                                Text('No', style: mediumTextStyle),
-                                SizedBox(height: 4)
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.people,
+                                  color: darkGreenColor, size: 20),
+                              SizedBox(width: 8),
+                              Text('Input Alternatif & Kriteria',
+                                  style: boldTextStyle.copyWith(
+                                      fontSize: 16, color: darkGreenColor)),
+                            ],
+                          ),
+                          SizedBox(height: 8),
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: DataTable(
+                              headingRowColor: WidgetStateProperty.all(
+                                  darkGreenColor.withOpacity(0.18)),
+                              dataRowMinHeight: 40,
+                              dataRowMaxHeight: 48,
+                              columnSpacing: 28,
+                              border: TableBorder.symmetric(
+                                  inside: BorderSide(
+                                      color: lightGreyColor, width: 0.7),
+                                  outside: BorderSide(
+                                      color: lightGreyColor, width: 1)),
+                              columns: [
+                                DataColumn(
+                                    label: Text('Nama',
+                                        style: boldTextStyle.copyWith(
+                                            fontSize: 15))),
+                                DataColumn(
+                                    label: Tooltip(
+                                        message: 'Rating Sampah B3',
+                                        child: Text('B3',
+                                            style: boldTextStyle.copyWith(
+                                                fontSize: 15)))),
+                                DataColumn(
+                                    label: Tooltip(
+                                        message: 'Rating Sampah Anorganik',
+                                        child: Text('Anorganik',
+                                            style: boldTextStyle.copyWith(
+                                                fontSize: 15)))),
+                                DataColumn(
+                                    label: Tooltip(
+                                        message: 'Rating Sampah Organik',
+                                        child: Text('Organik',
+                                            style: boldTextStyle.copyWith(
+                                                fontSize: 15)))),
                               ],
-                            )),
-                            DataColumn(
-                                label: Column(
-                              children: [
-                                Text('Nama', style: mediumTextStyle),
-                                SizedBox(height: 4),
-                                Text('User',
-                                    style: regularTextStyle.copyWith(
-                                        fontSize: 11, color: darkGreyColor))
-                              ],
-                            )),
-                            DataColumn(
-                                label: Column(
-                              children: [
-                                Text('B3', style: mediumTextStyle),
-                                SizedBox(height: 4),
-                                Text('Sampah B3',
-                                    style: regularTextStyle.copyWith(
-                                        fontSize: 11, color: darkGreyColor))
-                              ],
-                            )),
-                            DataColumn(
-                                label: Column(
-                              children: [
-                                Text('Anorganik', style: mediumTextStyle),
-                                SizedBox(height: 4),
-                                Text('Sampah Anorganik',
-                                    style: regularTextStyle.copyWith(
-                                        fontSize: 11, color: darkGreyColor))
-                              ],
-                            )),
-                            DataColumn(
-                                label: Column(
-                              children: [
-                                Text('Organik', style: mediumTextStyle),
-                                SizedBox(height: 4),
-                                Text('Sampah Organik',
-                                    style: regularTextStyle.copyWith(
-                                        fontSize: 11, color: darkGreyColor))
-                              ],
-                            )),
-                          ],
-                          rows: List.generate(5, (i) {
-                            return DataRow(cells: [
-                              DataCell(
-                                  Text('${i + 1}', style: regularTextStyle)),
-                              DataCell(SizedBox(
-                                width: 120,
-                                child: TextField(
-                                  controller: nameControllers[i],
-                                  decoration: InputDecoration(
-                                      hintText: 'Nama',
-                                      isDense: true,
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8))),
-                                  style: regularTextStyle,
-                                ),
-                              )),
-                              DataCell(SizedBox(
-                                width: 70,
-                                child: TextField(
-                                  controller: criteriaControllers[i][0],
-                                  keyboardType: TextInputType.number,
-                                  decoration: InputDecoration(
-                                      hintText: 'Rating',
-                                      isDense: true,
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8))),
-                                  style: regularTextStyle,
-                                ),
-                              )),
-                              DataCell(SizedBox(
-                                width: 70,
-                                child: TextField(
-                                  controller: criteriaControllers[i][1],
-                                  keyboardType: TextInputType.number,
-                                  decoration: InputDecoration(
-                                      hintText: 'Rating',
-                                      isDense: true,
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8))),
-                                  style: regularTextStyle,
-                                ),
-                              )),
-                              DataCell(SizedBox(
-                                width: 70,
-                                child: TextField(
-                                  controller: criteriaControllers[i][2],
-                                  keyboardType: TextInputType.number,
-                                  decoration: InputDecoration(
-                                      hintText: 'Rating',
-                                      isDense: true,
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8))),
-                                  style: regularTextStyle,
-                                ),
-                              )),
-                            ]);
-                          }),
+                              rows: List.generate(5, (i) {
+                                final List<String> dropdownNames = [
+                                  ...userList
+                                      .where((u) => (u['role'] ?? '') == 'user')
+                                      .map((u) => u['name'] as String)
+                                ];
+                                final bool forceManual =
+                                    userList.isEmpty || i >= userList.length;
+                                String? dropdownValue = selectedNames[i];
+                                if (!dropdownNames.contains(dropdownValue)) {
+                                  dropdownValue = null;
+                                }
+                                final isZebra = i % 2 == 1;
+                                return DataRow(
+                                  color:
+                                      WidgetStateProperty.resolveWith<Color?>(
+                                          (Set<MaterialState> states) {
+                                    if (states
+                                        .contains(MaterialState.hovered)) {
+                                      return darkGreenColor.withOpacity(0.10);
+                                    }
+                                    return isZebra
+                                        ? lightGreenColor.withOpacity(0.08)
+                                        : null;
+                                  }),
+                                  cells: [
+                                    DataCell(Row(
+                                      children: [
+                                        Expanded(
+                                          child: SizedBox(
+                                            width: 110,
+                                            height: 40,
+                                            child: Center(
+                                              child: (!forceManual)
+                                                  ? DropdownButtonFormField<
+                                                      String>(
+                                                      value: dropdownValue,
+                                                      isExpanded: true,
+                                                      icon: Icon(
+                                                          Icons
+                                                              .keyboard_arrow_down_rounded,
+                                                          color: darkGreenColor,
+                                                          size: 18),
+                                                      decoration:
+                                                          InputDecoration(
+                                                        border:
+                                                            InputBorder.none,
+                                                        contentPadding:
+                                                            EdgeInsets
+                                                                .symmetric(
+                                                                    horizontal:
+                                                                        6,
+                                                                    vertical:
+                                                                        0),
+                                                      ),
+                                                      hint: Text('Pilih Nama',
+                                                          style:
+                                                              regularTextStyle
+                                                                  .copyWith(
+                                                                      fontSize:
+                                                                          13)),
+                                                      items: dropdownNames
+                                                          .map((name) {
+                                                        final user =
+                                                            userList.firstWhere(
+                                                                (u) =>
+                                                                    u['name'] ==
+                                                                    name,
+                                                                orElse: () =>
+                                                                    {});
+                                                        return DropdownMenuItem<
+                                                            String>(
+                                                          value: name,
+                                                          child: Text(
+                                                            name,
+                                                            style:
+                                                                mediumTextStyle
+                                                                    .copyWith(
+                                                              color: name ==
+                                                                      dropdownValue
+                                                                  ? darkGreenColor
+                                                                  : darkGreyColor,
+                                                              fontSize: 13,
+                                                            ),
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                          ),
+                                                        );
+                                                      }).toList(),
+                                                      onChanged: (val) {
+                                                        setState(() {
+                                                          selectedNames[i] =
+                                                              val;
+                                                          isManualInput[i] =
+                                                              val ==
+                                                                  'Lainnya...';
+                                                          if (val !=
+                                                              'Lainnya...') {
+                                                            nameControllers[i]
+                                                                    .text =
+                                                                val ?? '';
+                                                          } else {
+                                                            nameControllers[i]
+                                                                .clear();
+                                                          }
+                                                        });
+                                                      },
+                                                    )
+                                                  : Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              top: 2.0),
+                                                      child: TextField(
+                                                        controller:
+                                                            nameControllers[i],
+                                                        decoration:
+                                                            InputDecoration(
+                                                          hintText:
+                                                              'Masukkan Nama',
+                                                          isDense: true,
+                                                          filled: true,
+                                                          fillColor:
+                                                              Colors.white,
+                                                          border:
+                                                              OutlineInputBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8),
+                                                            borderSide: BorderSide(
+                                                                color:
+                                                                    darkGreenColor,
+                                                                width: 1.2),
+                                                          ),
+                                                          prefixIcon: Icon(
+                                                              Icons.edit,
+                                                              color:
+                                                                  darkGreenColor,
+                                                              size: 16),
+                                                        ),
+                                                        style: regularTextStyle
+                                                            .copyWith(
+                                                                fontSize: 13),
+                                                        minLines: 1,
+                                                        maxLines: 1,
+                                                      ),
+                                                    ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    )),
+                                    DataCell(Tooltip(
+                                      message: 'Masukkan rating B3',
+                                      child: SizedBox(
+                                        width: 70,
+                                        child: TextField(
+                                          controller: criteriaControllers[i][0],
+                                          keyboardType: TextInputType.number,
+                                          decoration: InputDecoration(
+                                              hintText: 'Rating',
+                                              isDense: true,
+                                              border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          8))),
+                                          style: regularTextStyle,
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    )),
+                                    DataCell(Tooltip(
+                                      message: 'Masukkan rating Anorganik',
+                                      child: SizedBox(
+                                        width: 70,
+                                        child: TextField(
+                                          controller: criteriaControllers[i][1],
+                                          keyboardType: TextInputType.number,
+                                          decoration: InputDecoration(
+                                              hintText: 'Rating',
+                                              isDense: true,
+                                              border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          8))),
+                                          style: regularTextStyle,
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    )),
+                                    DataCell(Tooltip(
+                                      message: 'Masukkan rating Organik',
+                                      child: SizedBox(
+                                        width: 70,
+                                        child: TextField(
+                                          controller: criteriaControllers[i][2],
+                                          keyboardType: TextInputType.number,
+                                          decoration: InputDecoration(
+                                              hintText: 'Rating',
+                                              isDense: true,
+                                              border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          8))),
+                                          style: regularTextStyle,
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    )),
+                                  ],
+                                );
+                              }),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Center(
+                        child: Text(
+                          'Masukkan rating sesuai kriteria: 4 = Baik (<1kg), 3 = Cukup (1-2kg), 2 = Buruk (3-4kg), 1 = Sangat Buruk (>4kg).',
+                          style: TextStyle(
+                            fontStyle: FontStyle.italic,
+                            color: Colors.grey,
+                            fontSize: 14,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
                       ),
                     ),
@@ -385,6 +690,175 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                             style: boldTextStyle.copyWith(color: whiteColor)),
                       ),
                     ),
+                    SizedBox(height: 18),
+                    // Tabel Matriks Keputusan (advance style)
+                    SectionCard(
+                      title: 'Matriks Keputusan',
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.table_chart,
+                                  color: darkGreenColor, size: 20),
+                              SizedBox(width: 8),
+                              Text('Matriks Keputusan',
+                                  style: boldTextStyle.copyWith(
+                                      fontSize: 16, color: darkGreenColor)),
+                            ],
+                          ),
+                          SizedBox(height: 8),
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: DataTable(
+                              headingRowColor: WidgetStateProperty.all(
+                                  lightGreenColor.withOpacity(0.18)),
+                              dataRowMinHeight: 36,
+                              dataRowMaxHeight: 44,
+                              columnSpacing: 24,
+                              border: TableBorder.all(
+                                  color: lightGreyColor, width: 1),
+                              columns: [
+                                DataColumn(
+                                    label: Text('Nama', style: boldTextStyle)),
+                                DataColumn(
+                                    label: Text('B3', style: boldTextStyle)),
+                                DataColumn(
+                                    label: Text('Anorganik',
+                                        style: boldTextStyle)),
+                                DataColumn(
+                                    label:
+                                        Text('Organik', style: boldTextStyle)),
+                              ],
+                              rows: List.generate(5, (i) {
+                                return DataRow(
+                                  cells: [
+                                    DataCell(Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 4, horizontal: 8),
+                                      child: Text(nameControllers[i].text,
+                                          style: regularTextStyle),
+                                    )),
+                                    DataCell(Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 4, horizontal: 8),
+                                      child: Text(
+                                          criteriaControllers[i][0].text,
+                                          style: regularTextStyle),
+                                    )),
+                                    DataCell(Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 4, horizontal: 8),
+                                      child: Text(
+                                          criteriaControllers[i][1].text,
+                                          style: regularTextStyle),
+                                    )),
+                                    DataCell(Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 4, horizontal: 8),
+                                      child: Text(
+                                          criteriaControllers[i][2].text,
+                                          style: regularTextStyle),
+                                    )),
+                                  ],
+                                );
+                              }),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Tabel Matriks Normalisasi (advance style)
+                    SectionCard(
+                      title: 'Matriks Normalisasi',
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.auto_graph,
+                                  color: darkGreenColor, size: 20),
+                              SizedBox(width: 8),
+                              Text('Matriks Normalisasi',
+                                  style: boldTextStyle.copyWith(
+                                      fontSize: 16, color: darkGreenColor)),
+                            ],
+                          ),
+                          SizedBox(height: 8),
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: DataTable(
+                              headingRowColor: WidgetStateProperty.all(
+                                  lightGreenColor.withOpacity(0.18)),
+                              dataRowMinHeight: 36,
+                              dataRowMaxHeight: 44,
+                              columnSpacing: 24,
+                              border: TableBorder.all(
+                                  color: lightGreyColor, width: 1),
+                              columns: [
+                                DataColumn(
+                                    label: Text('Nama', style: boldTextStyle)),
+                                DataColumn(
+                                    label: Text('B3', style: boldTextStyle)),
+                                DataColumn(
+                                    label: Text('Anorganik',
+                                        style: boldTextStyle)),
+                                DataColumn(
+                                    label:
+                                        Text('Organik', style: boldTextStyle)),
+                              ],
+                              rows: List.generate(5, (i) {
+                                List<int> minPerKriteria =
+                                    getMinValuePerCriteria();
+                                return DataRow(
+                                  cells: [
+                                    DataCell(Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 4, horizontal: 8),
+                                      child: Text(nameControllers[i].text,
+                                          style: regularTextStyle),
+                                    )),
+                                    DataCell(Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 4, horizontal: 8),
+                                      child: Text(
+                                          _formatNorm(minPerKriteria[0] /
+                                              (double.tryParse(
+                                                      criteriaControllers[i][0]
+                                                          .text) ??
+                                                  minPerKriteria[0])),
+                                          style: regularTextStyle),
+                                    )),
+                                    DataCell(Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 4, horizontal: 8),
+                                      child: Text(
+                                          _formatNorm(minPerKriteria[1] /
+                                              (double.tryParse(
+                                                      criteriaControllers[i][1]
+                                                          .text) ??
+                                                  minPerKriteria[1])),
+                                          style: regularTextStyle),
+                                    )),
+                                    DataCell(Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 4, horizontal: 8),
+                                      child: Text(
+                                          _formatNorm(minPerKriteria[2] /
+                                              (double.tryParse(
+                                                      criteriaControllers[i][2]
+                                                          .text) ??
+                                                  minPerKriteria[2])),
+                                          style: regularTextStyle),
+                                    )),
+                                  ],
+                                );
+                              }),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                     SectionCard(
                       title: 'Hasil Perhitungan SAW',
                       color: lightGreenColor.withOpacity(0.07),
@@ -401,11 +875,14 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                             DataColumn(
                                 label: Text('Ranking', style: mediumTextStyle)),
                           ],
-                          rows: sawResult.map((data) {
+                          rows: ([
+                            ...sawResult
+                          ]..sort((a, b) => b['nilai'].compareTo(a['nilai'])))
+                              .map((data) {
                             final isTop = data['ranking'] == 1;
                             return DataRow(
                               color: isTop
-                                  ? MaterialStateProperty.all(
+                                  ? WidgetStateProperty.all(
                                       lightGreenColor.withOpacity(0.25))
                                   : null,
                               cells: [
@@ -435,7 +912,7 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                                             Icon(Icons.emoji_events,
                                                 color: whiteColor, size: 16),
                                             SizedBox(width: 3),
-                                            Text('Terbaik',
+                                            Text(' Terburuk',
                                                 style: boldTextStyle.copyWith(
                                                     color: whiteColor,
                                                     fontSize: 12)),
@@ -462,10 +939,91 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                         textAlign: TextAlign.center,
                       ),
                     ),
+                    // Proses Detail
+                    SizedBox(height: 18),
+                    SectionCard(
+                      title: 'Proses Detail',
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.info, color: darkGreenColor, size: 20),
+                              SizedBox(width: 8),
+                              Text('Langkah-langkah Perhitungan SAW',
+                                  style: boldTextStyle.copyWith(
+                                      fontSize: 16, color: darkGreenColor)),
+                            ],
+                          ),
+                          SizedBox(height: 10),
+                          Text('1. Matriks Keputusan',
+                              style: boldTextStyle.copyWith(fontSize: 15)),
+                          Text(
+                              '   Matriks input rating asli yang diisi pada tabel di atas.'),
+                          SizedBox(height: 8),
+                          Text('2. Matriks Normalisasi',
+                              style: boldTextStyle.copyWith(fontSize: 15)),
+                          Text(
+                              '   Setiap elemen dinormalisasi dengan rumus: r_ij = min(x_j) / x_ij (karena semua kriteria cost).'),
+                          SizedBox(height: 8),
+                          Text('3. Perhitungan Nilai Akhir',
+                              style: boldTextStyle.copyWith(fontSize: 15)),
+                          Text(
+                              '   Nilai akhir setiap baris dihitung dengan rumus:'),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4.0),
+                            child: Text(
+                                '   v_i = (w1 * r_i1) + (w2 * r_i2) + (w3 * r_i3)',
+                                style: regularTextStyle.copyWith(
+                                    fontStyle: FontStyle.italic)),
+                          ),
+                          Builder(
+                            builder: (context) {
+                              // Contoh substitusi untuk baris pertama
+                              List<int> minPerKriteria =
+                                  getMinValuePerCriteria();
+                              String nama = nameControllers[0].text;
+                              String c1 = criteriaControllers[0][0].text;
+                              String c2 = criteriaControllers[0][1].text;
+                              String c3 = criteriaControllers[0][2].text;
+                              double r1 = minPerKriteria[0] /
+                                  (double.tryParse(c1) ?? minPerKriteria[0]);
+                              double r2 = minPerKriteria[1] /
+                                  (double.tryParse(c2) ?? minPerKriteria[1]);
+                              double r3 = minPerKriteria[2] /
+                                  (double.tryParse(c3) ?? minPerKriteria[2]);
+                              double v = 0.5 * r1 + 0.3 * r2 + 0.2 * r3;
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                      '   Contoh untuk baris pertama (${nama.isNotEmpty ? nama : 'Baris 1'}):',
+                                      style: regularTextStyle.copyWith(
+                                          fontWeight: FontWeight.bold)),
+                                  Text(
+                                      '   v₁ = (0.5 × ${_formatNorm(r1)}) + (0.3 × ${_formatNorm(r2)}) + (0.2 × ${_formatNorm(r3)}) = ${_formatNorm(v)}',
+                                      style: regularTextStyle),
+                                ],
+                              );
+                            },
+                          ),
+                          SizedBox(height: 8),
+                          Text('4. Ranking',
+                              style: boldTextStyle.copyWith(fontSize: 15)),
+                          Text(
+                              '   Hasil akhir diurutkan dari nilai terbesar ke terkecil. Ranking 1 adalah yang terbaik.'),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
     );
+  }
+
+  // Tambahkan fungsi util format normalisasi
+  String _formatNorm(double val) {
+    return val.toStringAsFixed(3);
   }
 }

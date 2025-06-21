@@ -111,11 +111,19 @@ class _ProvincesRegenciesDropdownState
             onChanged: (String? newValue) {
               setState(() {
                 _selectedProvinceId = newValue;
-                _selectedProvinceName = _provinces.firstWhere((province) =>
-                    province['id'].toString() == newValue)['name'];
-                _fetchRegencies(newValue!);
-                widget.onProvinceChanged(
-                    {'id': newValue, 'name': _selectedProvinceName!});
+                final province = _provinces.firstWhere(
+                  (province) => province['id'].toString() == newValue,
+                  orElse: () => null,
+                );
+                _selectedProvinceName =
+                    province != null && province['name'] != null
+                        ? province['name']
+                        : '';
+                if (newValue != null) {
+                  _fetchRegencies(newValue);
+                  widget.onProvinceChanged(
+                      {'id': newValue, 'name': _selectedProvinceName ?? ''});
+                }
               });
             },
             items: _provinces.isEmpty
@@ -168,13 +176,29 @@ class _ProvincesRegenciesDropdownState
             ),
             value: _selectedRegencyId,
             onChanged: (String? newValue) {
-              setState(() {
-                _selectedRegencyId = newValue;
-                _selectedRegencyName = _regencies.firstWhere(
-                    (regency) => regency['id'].toString() == newValue)['name'];
-                widget.onRegencyChanged(
-                    {'id': newValue!, 'name': _selectedRegencyName!});
-              });
+              try {
+                setState(() {
+                  _selectedRegencyId = newValue;
+                  final regency = _regencies.firstWhere(
+                    (regency) => regency['id'].toString() == newValue,
+                    orElse: () => null,
+                  );
+                  _selectedRegencyName =
+                      regency != null && regency['name'] != null
+                          ? regency['name']
+                          : '';
+                  if (newValue != null) {
+                    widget.onRegencyChanged(
+                        {'id': newValue, 'name': _selectedRegencyName ?? ''});
+                  }
+                });
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                      content:
+                          Text('Gagal memilih kabupaten. Silakan coba lagi.')),
+                );
+              }
             },
             items: _regencies.isEmpty
                 ? [

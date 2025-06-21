@@ -36,11 +36,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       if (mounted) {
         setState(() {
-          displayName = userData['name'];
-          profileImageUrl = userData['profileImageUrl'] ??
-              'https://firebasestorage.googleapis.com/v0/b/trash-scout-3c117.appspot.com/o/users%2Fdefault_profile_image%2Fuser%20default%20profile.png?alt=media&token=79ef1308-3d3d-477d-b566-0c4e66848a4d';
-          userGender = userData['gender'];
-          userLocation = capitalize(userData['regency']);
+          final data = userData.data() as Map<String, dynamic>?;
+          displayName = (data != null && data.containsKey('name'))
+              ? data['name']
+              : 'User';
+          profileImageUrl = (data != null &&
+                  data.containsKey('profileImageUrl'))
+              ? data['profileImageUrl']
+              : 'https://firebasestorage.googleapis.com/v0/b/trash-scout-3c117.appspot.com/o/users%2Fdefault_profile_image%2Fuser%20default%20profile.png?alt=media&token=79ef1308-3d3d-477d-b566-0c4e66848a4d';
+          userGender = (data != null && data.containsKey('gender'))
+              ? data['gender']
+              : '-';
+          userLocation = (data != null && data.containsKey('regency'))
+              ? capitalize(data['regency'])
+              : '-';
         });
       }
     }

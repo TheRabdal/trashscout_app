@@ -32,7 +32,9 @@ class FirestoreService {
   Future<String?> getUserName(String uid) async {
     DocumentSnapshot userDoc =
         await _firestore.collection('users').doc(uid).get();
-    if (userDoc.exists && userDoc.data() != null) {
+    if (userDoc.exists &&
+        userDoc.data() != null &&
+        (userDoc.data() as Map<String, dynamic>).containsKey('name')) {
       return userDoc['name'];
     } else {
       return null;
@@ -42,8 +44,23 @@ class FirestoreService {
   Future<String?> getUserPhoto(String uid) async {
     DocumentSnapshot userDoc =
         await _firestore.collection('users').doc(uid).get();
-    if (userDoc.exists && userDoc.data() != null) {
+    if (userDoc.exists &&
+        userDoc.data() != null &&
+        (userDoc.data() as Map<String, dynamic>)
+            .containsKey('profileImageUrl')) {
       return userDoc['profileImageUrl'];
+    } else {
+      return null;
+    }
+  }
+
+  Future<String?> getUserRole(String uid) async {
+    DocumentSnapshot userDoc =
+        await _firestore.collection('users').doc(uid).get();
+    if (userDoc.exists &&
+        userDoc.data() != null &&
+        (userDoc.data() as Map<String, dynamic>).containsKey('role')) {
+      return userDoc['role'];
     } else {
       return null;
     }
@@ -73,14 +90,18 @@ class FirestoreService {
       'status': newStatus,
     });
 
-    String reportTitle = (await _firestore
-            .collection('users')
-            .doc(userId)
-            .collection('reports')
-            .doc(reportId)
-            .get())
-        .data()!['title'];
-
+    final reportDoc = await _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('reports')
+        .doc(reportId)
+        .get();
+    String reportTitle = '';
+    if (reportDoc.exists &&
+        reportDoc.data() != null &&
+        (reportDoc.data() as Map<String, dynamic>).containsKey('title')) {
+      reportTitle = reportDoc['title'];
+    }
     bool isDone = newStatus == 'Selesai';
     await addNotification(userId, reportTitle, isDone);
   }
@@ -88,11 +109,16 @@ class FirestoreService {
   Future<List<Map<String, dynamic>>> getAllUsers() async {
     QuerySnapshot snapshot = await _firestore.collection('users').get();
     return snapshot.docs
-        .map((doc) => {
-              'uid':
-                  doc.data().toString().contains('uid') ? doc['uid'] : doc.id,
-              'name': doc['name'],
-            })
-        .toList();
+        .where((doc) => doc.exists && doc.data() != null)
+        .map((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+      return {
+        'uid': data.containsKey('uid') ? data['uid'] : doc.id,
+        'name': data.containsKey('name') ? data['name'] : '',
+        'role': data.containsKey('role') ? data['role'] : '',
+        'profileImageUrl':
+            data.containsKey('profileImageUrl') ? data['profileImageUrl'] : '',
+      };
+    }).toList();
   }
 }

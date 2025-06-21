@@ -33,14 +33,24 @@ class AuthPage extends StatelessWidget {
                       child: CircularProgressIndicator(
                     color: darkGreenColor,
                   ));
-                } else if (userSnapshot.hasData) {
-                  String role = userSnapshot.data!['role'];
-                  if (role == 'admin') {
-                    return AdminMainScreen();
+                } else if (userSnapshot.hasData &&
+                    userSnapshot.data != null &&
+                    userSnapshot.data!.exists) {
+                  final data =
+                      userSnapshot.data!.data() as Map<String, dynamic>?;
+                  if (data != null && data.containsKey('role')) {
+                    String role = data['role'];
+                    if (role == 'admin') {
+                      return AdminMainScreen();
+                    } else {
+                      return MainScreen();
+                    }
                   } else {
-                    return MainScreen();
+                    // Field role tidak ada
+                    return LoginScreen();
                   }
                 } else {
+                  // Dokumen user tidak ada
                   return LoginScreen();
                 }
               },

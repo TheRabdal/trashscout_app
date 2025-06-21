@@ -42,13 +42,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           .doc(user.uid)
           .get();
       if (userData.exists) {
+        final data = userData.data() as Map<String, dynamic>?;
         if (mounted) {
           setState(() {
-            _nameController.text = userData['name'];
-            _phoneNumberController.text = userData['phoneNumber'];
-            _selectedProvince = userData['province'];
-            _selectedRegency = userData['regency'];
-            _profileImage = userData['profileImageUrl'];
+            _nameController.text =
+                (data != null && data.containsKey('name')) ? data['name'] : '';
+            _phoneNumberController.text =
+                (data != null && data.containsKey('phoneNumber'))
+                    ? data['phoneNumber']
+                    : '';
+            _selectedProvince = (data != null && data.containsKey('province'))
+                ? data['province']
+                : null;
+            _selectedRegency = (data != null && data.containsKey('regency'))
+                ? data['regency']
+                : null;
+            _profileImage =
+                (data != null && data.containsKey('profileImageUrl'))
+                    ? data['profileImageUrl']
+                    : null;
           });
         }
       }

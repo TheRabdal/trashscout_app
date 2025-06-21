@@ -46,30 +46,32 @@ class _LoginScreenState extends State<LoginScreen> {
           .get();
 
       if (mounted) {
-        String role = userDoc['role'];
-        Provider.of<BottomNavigationProvider>(context, listen: false)
-            .currentIndex = 0;
-        if (role == 'admin') {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AdminMainScreen(),
-            ),
-            (Route<dynamic> route) => false,
-          );
+        if (userDoc.exists &&
+            userDoc.data() != null &&
+            (userDoc.data() as Map<String, dynamic>).containsKey('role')) {
+          String role = userDoc['role'];
+          Provider.of<BottomNavigationProvider>(context, listen: false)
+              .currentIndex = 0;
+          if (role == 'admin') {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AdminMainScreen(),
+              ),
+              (Route<dynamic> route) => false,
+            );
+          } else {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MainScreen(),
+              ),
+              (Route<dynamic> route) => false,
+            );
+          }
         } else {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MainScreen(),
-            ),
-            (Route<dynamic> route) => false,
-          );
-        }
-      } else {
-        if (mounted) {
           setState(() {
-            _error = 'User not found in database';
+            _error = 'User tidak ditemukan atau data tidak lengkap.';
           });
         }
       }

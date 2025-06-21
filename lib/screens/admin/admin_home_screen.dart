@@ -58,9 +58,12 @@ class _AdminScreenState extends State<AdminHomeScreen> {
     String? name = await _firestoreService.getUserName(user.uid);
     String? profileImageUrl;
 
-    Map<String, dynamic> userData = userSnapshot.data() as Map<String, dynamic>;
+    Map<String, dynamic>? userData =
+        userSnapshot.data() as Map<String, dynamic>?;
 
-    if (userSnapshot.exists && userData.containsKey('profileImageUrl')) {
+    if (userSnapshot.exists &&
+        userData != null &&
+        userData.containsKey('profileImageUrl')) {
       profileImageUrl = userSnapshot['profileImageUrl'];
     } else {
       profileImageUrl = defaultProfileImageUrl;
