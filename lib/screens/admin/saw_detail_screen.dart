@@ -618,23 +618,49 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                                       message: 'Masukkan rating B3',
                                       child: SizedBox(
                                         width: 70,
-                                        child: TextField(
-                                          controller: criteriaControllers[i][0],
-                                          keyboardType: TextInputType.number,
+                                        child: DropdownButtonFormField<String>(
+                                          value: criteriaControllers[i][0]
+                                                  .text
+                                                  .isNotEmpty
+                                              ? criteriaControllers[i][0].text
+                                              : null,
+                                          isExpanded: true,
+                                          icon: Icon(
+                                              Icons.keyboard_arrow_down_rounded,
+                                              color: darkGreenColor,
+                                              size: 18),
                                           decoration: InputDecoration(
-                                              hintText: 'Rating',
-                                              isDense: true,
-                                              border: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          8))),
-                                          style: regularTextStyle,
-                                          textAlign: TextAlign.center,
-                                          inputFormatters: [
-                                            LengthLimitingTextInputFormatter(1),
-                                            FilteringTextInputFormatter
-                                                .digitsOnly,
-                                          ],
+                                            border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(8)),
+                                            isDense: true,
+                                            contentPadding:
+                                                EdgeInsets.symmetric(
+                                                    horizontal: 6, vertical: 0),
+                                          ),
+                                          hint: Center(
+                                              child: Text('Rating',
+                                                  style: regularTextStyle
+                                                      .copyWith(fontSize: 13))),
+                                          items: ['1', '2', '3', '4']
+                                              .map((val) =>
+                                                  DropdownMenuItem<String>(
+                                                    value: val,
+                                                    child: Center(
+                                                        child: Text(val,
+                                                            style: regularTextStyle
+                                                                .copyWith(
+                                                                    fontSize:
+                                                                        14))),
+                                                  ))
+                                              .toList(),
+                                          onChanged: (val) {
+                                            setState(() {
+                                              criteriaControllers[i][0].text =
+                                                  val ?? '';
+                                            });
+                                          },
+                                          alignment: Alignment.center,
                                         ),
                                       ),
                                     )),
@@ -642,23 +668,49 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                                       message: 'Masukkan rating Anorganik',
                                       child: SizedBox(
                                         width: 70,
-                                        child: TextField(
-                                          controller: criteriaControllers[i][1],
-                                          keyboardType: TextInputType.number,
+                                        child: DropdownButtonFormField<String>(
+                                          value: criteriaControllers[i][1]
+                                                  .text
+                                                  .isNotEmpty
+                                              ? criteriaControllers[i][1].text
+                                              : null,
+                                          isExpanded: true,
+                                          icon: Icon(
+                                              Icons.keyboard_arrow_down_rounded,
+                                              color: darkGreenColor,
+                                              size: 18),
                                           decoration: InputDecoration(
-                                              hintText: 'Rating',
-                                              isDense: true,
-                                              border: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          8))),
-                                          style: regularTextStyle,
-                                          textAlign: TextAlign.center,
-                                          inputFormatters: [
-                                            LengthLimitingTextInputFormatter(1),
-                                            FilteringTextInputFormatter
-                                                .digitsOnly,
-                                          ],
+                                            border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(8)),
+                                            isDense: true,
+                                            contentPadding:
+                                                EdgeInsets.symmetric(
+                                                    horizontal: 6, vertical: 0),
+                                          ),
+                                          hint: Center(
+                                              child: Text('Rating',
+                                                  style: regularTextStyle
+                                                      .copyWith(fontSize: 13))),
+                                          items: ['1', '2', '3', '4']
+                                              .map((val) =>
+                                                  DropdownMenuItem<String>(
+                                                    value: val,
+                                                    child: Center(
+                                                        child: Text(val,
+                                                            style: regularTextStyle
+                                                                .copyWith(
+                                                                    fontSize:
+                                                                        14))),
+                                                  ))
+                                              .toList(),
+                                          onChanged: (val) {
+                                            setState(() {
+                                              criteriaControllers[i][1].text =
+                                                  val ?? '';
+                                            });
+                                          },
+                                          alignment: Alignment.center,
                                         ),
                                       ),
                                     )),
@@ -666,23 +718,49 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                                       message: 'Masukkan rating Organik',
                                       child: SizedBox(
                                         width: 70,
-                                        child: TextField(
-                                          controller: criteriaControllers[i][2],
-                                          keyboardType: TextInputType.number,
+                                        child: DropdownButtonFormField<String>(
+                                          value: criteriaControllers[i][2]
+                                                  .text
+                                                  .isNotEmpty
+                                              ? criteriaControllers[i][2].text
+                                              : null,
+                                          isExpanded: true,
+                                          icon: Icon(
+                                              Icons.keyboard_arrow_down_rounded,
+                                              color: darkGreenColor,
+                                              size: 18),
                                           decoration: InputDecoration(
-                                              hintText: 'Rating',
-                                              isDense: true,
-                                              border: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          8))),
-                                          style: regularTextStyle,
-                                          textAlign: TextAlign.center,
-                                          inputFormatters: [
-                                            LengthLimitingTextInputFormatter(1),
-                                            FilteringTextInputFormatter
-                                                .digitsOnly,
-                                          ],
+                                            border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(8)),
+                                            isDense: true,
+                                            contentPadding:
+                                                EdgeInsets.symmetric(
+                                                    horizontal: 6, vertical: 0),
+                                          ),
+                                          hint: Center(
+                                              child: Text('Rating',
+                                                  style: regularTextStyle
+                                                      .copyWith(fontSize: 13))),
+                                          items: ['1', '2', '3', '4']
+                                              .map((val) =>
+                                                  DropdownMenuItem<String>(
+                                                    value: val,
+                                                    child: Center(
+                                                        child: Text(val,
+                                                            style: regularTextStyle
+                                                                .copyWith(
+                                                                    fontSize:
+                                                                        14))),
+                                                  ))
+                                              .toList(),
+                                          onChanged: (val) {
+                                            setState(() {
+                                              criteriaControllers[i][2].text =
+                                                  val ?? '';
+                                            });
+                                          },
+                                          alignment: Alignment.center,
                                         ),
                                       ),
                                     )),
@@ -1057,8 +1135,8 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                                           SizedBox(width: 6),
                                           Tooltip(
                                             message: 'Nilai Tertinggi',
-                                            child: Icon(Icons.emoji_events,
-                                                color: Colors.amber[700],
+                                            child: Icon(Icons.emoji_objects,
+                                                color: const Color.fromARGB(255, 255, 0, 0),
                                                 size: 20),
                                           ),
                                         ]
@@ -1161,24 +1239,74 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                               double c1 = lastMatrix[i][0];
                               double c2 = lastMatrix[i][1];
                               double c3 = lastMatrix[i][2];
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(height: 6),
-                                  Text('   Normalisasi untuk $nama:',
-                                      style: mediumTextStyle.copyWith(
-                                          fontWeight: FontWeight.bold)),
-                                  Text(
-                                      '      r₁ = min(B3) / B3 = ${minPerKriteria[0]} / ${c1 != 0 ? c1.toStringAsFixed(3) : '-'} = ${_formatNorm(r1)}'),
-                                  Text(
-                                      '      r₂ = min(Anorganik) / Anorganik = ${minPerKriteria[1]} / ${c2 != 0 ? c2.toStringAsFixed(3) : '-'} = ${_formatNorm(r2)}'),
-                                  Text(
-                                      '      r₃ = min(Organik) / Organik = ${minPerKriteria[2]} / ${c3 != 0 ? c3.toStringAsFixed(3) : '-'} = ${_formatNorm(r3)}'),
-                                  Text(
-                                      '      Nilai Akhir: v = (0.5 × ${_formatNorm(r1)}) + (0.3 × ${_formatNorm(r2)}) + (0.2 × ${_formatNorm(r3)}) = ${_formatNorm(v)}',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w600)),
-                                ],
+                              return Container(
+                                margin: EdgeInsets.only(bottom: 14),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 8, horizontal: 10),
+                                decoration: BoxDecoration(
+                                  color: idx % 2 == 1
+                                      ? lightGreenColor.withOpacity(0.07)
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                      color: lightGreyColor.withOpacity(0.3)),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                        '${idx + 1}. Penyelesaian untuk ${nama.isNotEmpty ? nama : 'Baris ${idx + 1}'}',
+                                        style: boldTextStyle.copyWith(
+                                            fontSize: 15,
+                                            color: darkGreenColor)),
+                                    SizedBox(height: 4),
+                                    Text('a. Normalisasi:',
+                                        style: mediumTextStyle.copyWith(
+                                            fontWeight: FontWeight.w600)),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 10, top: 2),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                              'r₁ = min(B3) / B3 = ${minPerKriteria[0]} / ${c1.toInt()} = ${_formatNorm(r1)}'),
+                                          Text(
+                                              'r₂ = min(Anorganik) / Anorganik = ${minPerKriteria[1]} / ${c2.toInt()} = ${_formatNorm(r2)}'),
+                                          Text(
+                                              'r₃ = min(Organik) / Organik = ${minPerKriteria[2]} / ${c3.toInt()} = ${_formatNorm(r3)}'),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(height: 4),
+                                    Text('b. Penjumlahan Nilai Akhir:',
+                                        style: mediumTextStyle.copyWith(
+                                            fontWeight: FontWeight.w600)),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 10, top: 2),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                              'v = (w₁ × r₁) + (w₂ × r₂) + (w₃ × r₃)'),
+                                          Text(
+                                              '  = (0.5 × ${_formatNorm(r1)}) + (0.3 × ${_formatNorm(r2)}) + (0.2 × ${_formatNorm(r3)})'),
+                                          Text(
+                                              '  = ${(0.5 * r1).toStringAsFixed(3)} + ${(0.3 * r2).toStringAsFixed(3)} + ${(0.2 * r3).toStringAsFixed(3)}'),
+                                          Text('  = ${_formatNorm(v)}',
+                                              style: boldTextStyle.copyWith(
+                                                  color: darkGreenColor)),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(height: 2),
+                                    Divider(
+                                        color: lightGreyColor.withOpacity(0.5)),
+                                  ],
+                                ),
                               );
                             });
                           })(),
@@ -1186,7 +1314,7 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                           Text('3. Ranking',
                               style: boldTextStyle.copyWith(fontSize: 15)),
                           Text(
-                              '   Hasil akhir diurutkan dari nilai terbesar ke terkecil. Ranking 1 adalah yang terbaik.'),
+                              '   Hasil akhir diurutkan dari nilai terbesar ke terkecil. Ranking 1 adalah yang terburuk.'),
                         ],
                       ),
                     ),
