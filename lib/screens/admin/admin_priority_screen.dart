@@ -138,14 +138,101 @@ class _AdminPriorityScreenState extends State<AdminPriorityScreen> {
                     showDialog(
                       context: context,
                       builder: (context) => AlertDialog(
-                        title: Text('Informasi Prioritas Sampah'),
-                        content: Text(
-                          'Laporan prioritas adalah laporan dengan kategori: Beracun, Berbahaya, atau Medis. Urutan prioritas menggunakan metode Simple Additive Weighting (SAW) dengan bobot: Beracun=0.5, Berbahaya=0.3, Medis=0.2. Laporan dengan skor tertinggi akan tampil paling atas.',
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(22)),
+                        backgroundColor: Colors.white,
+                        titlePadding: EdgeInsets.only(
+                            top: 28, left: 24, right: 24, bottom: 0),
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                        actionsPadding: EdgeInsets.only(
+                            left: 16, right: 16, bottom: 18, top: 8),
+                        title: Column(
+                          children: [
+                            Icon(Icons.info_outline_rounded,
+                                color: darkGreenColor, size: 48),
+                            SizedBox(height: 12),
+                            Text('Informasi Prioritas Sampah',
+                                style: boldTextStyle.copyWith(
+                                    color: darkGreenColor, fontSize: 22)),
+                          ],
+                        ),
+                        content: SingleChildScrollView(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Laporan prioritas adalah laporan dengan kategori sampah: B3, Anorganik, atau Organik.',
+                                style: regularTextStyle.copyWith(
+                                    fontSize: 16, color: darkGreyColor),
+                                softWrap: true,
+                              ),
+                              SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Icon(Icons.star,
+                                      color: Colors.amber[700], size: 20),
+                                  SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      'Urutan prioritas menggunakan metode SAW:',
+                                      style: mediumTextStyle.copyWith(
+                                          color: darkGreenColor),
+                                      softWrap: true,
+                                      maxLines: 2,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 6),
+                              Container(
+                                padding: EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: lightGreenColor.withOpacity(0.13),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Bobot:',
+                                        style: mediumTextStyle.copyWith(
+                                            fontWeight: FontWeight.bold)),
+                                    SizedBox(height: 2),
+                                    Text('• Sampah B3 = 0.5',
+                                        style: regularTextStyle),
+                                    Text('• Anorganik = 0.3',
+                                        style: regularTextStyle),
+                                    Text('• Organik = 0.2',
+                                        style: regularTextStyle),
+                                    SizedBox(height: 8),
+                                    Text(
+                                        'Laporan dengan skor tertinggi akan tampil paling atas.',
+                                        style: regularTextStyle.copyWith(
+                                            fontStyle: FontStyle.italic)),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                         actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(),
-                            child: Text('Tutup'),
+                          Center(
+                            child: ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: darkGreenColor,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12)),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 28, vertical: 12),
+                                elevation: 2,
+                              ),
+                              onPressed: () => Navigator.of(context).pop(),
+                              icon: Icon(Icons.check, color: whiteColor),
+                              label: Text('Tutup',
+                                  style: boldTextStyle.copyWith(
+                                      color: whiteColor)),
+                            ),
                           ),
                         ],
                       ),

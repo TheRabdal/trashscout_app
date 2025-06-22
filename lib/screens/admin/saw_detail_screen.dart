@@ -512,12 +512,6 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                                                                 fontSize: 13)),
                                                     items: dropdownNames
                                                         .map((name) {
-                                                      final user =
-                                                          userList.firstWhere(
-                                                              (u) =>
-                                                                  u['name'] ==
-                                                                  name,
-                                                              orElse: () => {});
                                                       return DropdownMenuItem<
                                                           String>(
                                                         value: name,
@@ -1136,7 +1130,8 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                                           Tooltip(
                                             message: 'Nilai Tertinggi',
                                             child: Icon(Icons.emoji_objects,
-                                                color: const Color.fromARGB(255, 255, 0, 0),
+                                                color: const Color.fromARGB(
+                                                    255, 255, 0, 0),
                                                 size: 20),
                                           ),
                                         ]
