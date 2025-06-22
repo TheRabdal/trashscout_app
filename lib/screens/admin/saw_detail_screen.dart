@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:trash_scout/shared/theme/theme.dart';
 import 'package:trash_scout/services/firestore_service.dart';
+import 'package:flutter/services.dart';
 
 class SectionCard extends StatelessWidget {
   final String title;
@@ -52,7 +53,9 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
     'Lainnya...'
   ];
   // Untuk menyimpan pilihan dropdown per baris
-  final List<String?> selectedNames = List.generate(5, (_) => null);
+  final String placeholderName = 'Pilih Nama Terlebih Dahulu';
+  final List<String?> selectedNames =
+      List.generate(5, (_) => 'Pilih Nama Terlebih Dahulu');
   // Untuk menandai apakah input manual aktif per baris
   final List<bool> isManualInput = List.generate(5, (_) => false);
 
@@ -67,6 +70,12 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
 
   List<Map<String, dynamic>> userList = [];
   bool _isLoadingUser = true;
+
+  // State untuk hasil perhitungan
+  List<List<double>> lastNormalisasi =
+      List.generate(5, (_) => List.filled(3, 0.0));
+  List<Map<String, dynamic>> lastResult = [];
+  List<List<double>> lastMatrix = List.generate(5, (_) => List.filled(3, 0.0));
 
   @override
   void initState() {
@@ -84,11 +93,11 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
       // Reset selectedNames dan isManualInput agar tidak error
       for (int i = 0; i < 5; i++) {
         if (i < userList.length) {
-          selectedNames[i] = userList[i]['name'];
+          selectedNames[i] = placeholderName;
           isManualInput[i] = false;
-          nameControllers[i].text = userList[i]['name'] ?? '';
+          nameControllers[i].clear();
         } else {
-          selectedNames[i] = null;
+          selectedNames[i] = placeholderName;
           isManualInput[i] = true;
           nameControllers[i].clear();
         }
@@ -124,22 +133,24 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
     return minValue;
   }
 
-  // Hitung SAW (Simple Additive Weighting)
-  List<Map<String, dynamic>> hitungSAW() {
+  void calculateSAW() {
+    // Matriks keputusan (input user)
+    List<List<double>> matrix = List.generate(
+        5,
+        (i) => List.generate(
+            3, (j) => double.tryParse(criteriaControllers[i][j].text) ?? 0.0));
+    // Matriks normalisasi
+    List<int> minPerKriteria = getMinValuePerCriteria();
     List<List<double>> normalisasi =
         List.generate(5, (_) => List.filled(3, 0.0));
-    var minPerKriteria = getMinValuePerCriteria();
-
-    // Normalisasi cost: min / value
     for (int i = 0; i < 5; i++) {
       for (int j = 0; j < 3; j++) {
-        double val = double.tryParse(criteriaControllers[i][j].text) ?? 0.0;
-        if (val == 0) val = minPerKriteria[j].toDouble(); // kosong pakai min
+        double val = matrix[i][j];
+        if (val == 0) val = minPerKriteria[j].toDouble();
         normalisasi[i][j] = minPerKriteria[j] / val;
       }
     }
-
-    // Hitung nilai akhir & ranking
+    // Nilai akhir & ranking
     List<Map<String, dynamic>> result = [];
     for (int i = 0; i < 5; i++) {
       double nilaiAkhir = 0;
@@ -149,25 +160,32 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
       result.add({
         'nama': nameControllers[i].text,
         'nilai': double.parse(nilaiAkhir.toStringAsFixed(3)),
+        'normalisasi': normalisasi[i],
+        'matrix': matrix[i],
       });
     }
-
     // Ranking
     result.sort((a, b) => b['nilai'].compareTo(a['nilai']));
     for (int i = 0; i < result.length; i++) {
       result[i]['ranking'] = i + 1;
     }
-    // Kembalikan ke urutan input (jika ingin tampil sesuai input)
+    // Kembalikan ke urutan input
     result.sort((a, b) => nameControllers
         .indexWhere((c) => c.text == a['nama'])
         .compareTo(nameControllers.indexWhere((c) => c.text == b['nama'])));
-    return result;
+    setState(() {
+      lastNormalisasi = normalisasi;
+      lastResult = result;
+      lastMatrix = matrix;
+    });
   }
 
   String? validateInput() {
     for (int i = 0; i < 5; i++) {
-      if (nameControllers[i].text.trim().isEmpty) {
-        return 'Nama pada baris ${i + 1} tidak boleh kosong';
+      if (selectedNames[i] == null ||
+          selectedNames[i] == placeholderName ||
+          nameControllers[i].text.trim().isEmpty) {
+        return 'Nama pada baris ${i + 1} belum dipilih';
       }
       for (int j = 0; j < 3; j++) {
         if (criteriaControllers[i][j].text.trim().isEmpty) {
@@ -180,12 +198,11 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final sawResult = hitungSAW();
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
         backgroundColor: whiteColor,
-        title: Text('Detail SAW',
+        title: Text('Metode SAW',
             style: boldTextStyle.copyWith(color: darkGreenColor)),
         centerTitle: true,
         elevation: 0,
@@ -431,16 +448,27 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                                                 fontSize: 15)))),
                               ],
                               rows: List.generate(5, (i) {
+                                final allUserNames = userList
+                                    .where((u) => (u['role'] ?? '') == 'user')
+                                    .map((u) => u['name'] as String)
+                                    .toList();
+                                final selectedOtherNames = List<String>.from(
+                                    selectedNames
+                                        .map((e) => e ?? placeholderName))
+                                  ..removeAt(i);
                                 final List<String> dropdownNames = [
-                                  ...userList
-                                      .where((u) => (u['role'] ?? '') == 'user')
-                                      .map((u) => u['name'] as String)
+                                  placeholderName,
+                                  ...allUserNames.where((name) =>
+                                      !selectedOtherNames.contains(name) ||
+                                      name ==
+                                          (selectedNames[i] ?? placeholderName))
                                 ];
                                 final bool forceManual =
                                     userList.isEmpty || i >= userList.length;
-                                String? dropdownValue = selectedNames[i];
+                                String dropdownValue =
+                                    (selectedNames[i] ?? placeholderName);
                                 if (!dropdownNames.contains(dropdownValue)) {
-                                  dropdownValue = null;
+                                  dropdownValue = placeholderName;
                                 }
                                 final isZebra = i % 2 == 1;
                                 return DataRow(
@@ -458,127 +486,130 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                                   cells: [
                                     DataCell(Row(
                                       children: [
-                                        Expanded(
-                                          child: SizedBox(
-                                            width: 110,
-                                            height: 40,
-                                            child: Center(
-                                              child: (!forceManual)
-                                                  ? DropdownButtonFormField<
-                                                      String>(
-                                                      value: dropdownValue,
-                                                      isExpanded: true,
-                                                      icon: Icon(
-                                                          Icons
-                                                              .keyboard_arrow_down_rounded,
-                                                          color: darkGreenColor,
-                                                          size: 18),
-                                                      decoration:
-                                                          InputDecoration(
-                                                        border:
-                                                            InputBorder.none,
-                                                        contentPadding:
-                                                            EdgeInsets
-                                                                .symmetric(
-                                                                    horizontal:
-                                                                        6,
-                                                                    vertical:
-                                                                        0),
-                                                      ),
-                                                      hint: Text('Pilih Nama',
-                                                          style:
-                                                              regularTextStyle
-                                                                  .copyWith(
-                                                                      fontSize:
-                                                                          13)),
-                                                      items: dropdownNames
-                                                          .map((name) {
-                                                        final user =
-                                                            userList.firstWhere(
-                                                                (u) =>
-                                                                    u['name'] ==
-                                                                    name,
-                                                                orElse: () =>
-                                                                    {});
-                                                        return DropdownMenuItem<
-                                                            String>(
-                                                          value: name,
+                                        Flexible(
+                                          fit: FlexFit.loose,
+                                          child: Center(
+                                            child: (!forceManual)
+                                                ? DropdownButtonFormField<
+                                                    String>(
+                                                    value: dropdownValue,
+                                                    isExpanded: true,
+                                                    icon: Icon(
+                                                        Icons
+                                                            .keyboard_arrow_down_rounded,
+                                                        color: darkGreenColor,
+                                                        size: 18),
+                                                    decoration: InputDecoration(
+                                                      border: InputBorder.none,
+                                                      contentPadding:
+                                                          EdgeInsets.symmetric(
+                                                              horizontal: 6,
+                                                              vertical: 0),
+                                                    ),
+                                                    hint: Text(placeholderName,
+                                                        style: regularTextStyle
+                                                            .copyWith(
+                                                                fontSize: 13)),
+                                                    items: dropdownNames
+                                                        .map((name) {
+                                                      final user =
+                                                          userList.firstWhere(
+                                                              (u) =>
+                                                                  u['name'] ==
+                                                                  name,
+                                                              orElse: () => {});
+                                                      return DropdownMenuItem<
+                                                          String>(
+                                                        value: name,
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal:
+                                                                      4.0),
                                                           child: Text(
                                                             name,
                                                             style:
                                                                 mediumTextStyle
                                                                     .copyWith(
                                                               color: name ==
-                                                                      dropdownValue
-                                                                  ? darkGreenColor
-                                                                  : darkGreyColor,
+                                                                      placeholderName
+                                                                  ? Colors.grey
+                                                                  : name ==
+                                                                          dropdownValue
+                                                                      ? darkGreenColor
+                                                                      : darkGreyColor,
                                                               fontSize: 13,
+                                                              fontStyle: name ==
+                                                                      placeholderName
+                                                                  ? FontStyle
+                                                                      .italic
+                                                                  : FontStyle
+                                                                      .normal,
                                                             ),
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
                                                           ),
-                                                        );
-                                                      }).toList(),
-                                                      onChanged: (val) {
-                                                        setState(() {
-                                                          selectedNames[i] =
-                                                              val;
-                                                          isManualInput[i] =
-                                                              val ==
-                                                                  'Lainnya...';
-                                                          if (val !=
-                                                              'Lainnya...') {
-                                                            nameControllers[i]
-                                                                    .text =
-                                                                val ?? '';
-                                                          } else {
-                                                            nameControllers[i]
-                                                                .clear();
-                                                          }
-                                                        });
-                                                      },
-                                                    )
-                                                  : Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              top: 2.0),
-                                                      child: TextField(
-                                                        controller:
-                                                            nameControllers[i],
-                                                        decoration:
-                                                            InputDecoration(
-                                                          hintText:
-                                                              'Masukkan Nama',
-                                                          isDense: true,
-                                                          filled: true,
-                                                          fillColor:
-                                                              Colors.white,
-                                                          border:
-                                                              OutlineInputBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        8),
-                                                            borderSide: BorderSide(
-                                                                color:
-                                                                    darkGreenColor,
-                                                                width: 1.2),
-                                                          ),
-                                                          prefixIcon: Icon(
-                                                              Icons.edit,
+                                                        ),
+                                                      );
+                                                    }).toList(),
+                                                    onChanged: (val) {
+                                                      setState(() {
+                                                        final safeVal = val ??
+                                                            placeholderName;
+                                                        selectedNames[i] =
+                                                            safeVal;
+                                                        isManualInput[i] =
+                                                            safeVal ==
+                                                                'Lainnya...';
+                                                        if (safeVal !=
+                                                                'Lainnya...' &&
+                                                            safeVal !=
+                                                                placeholderName) {
+                                                          nameControllers[i]
+                                                              .text = safeVal;
+                                                        } else {
+                                                          nameControllers[i]
+                                                              .text = '';
+                                                        }
+                                                      });
+                                                    },
+                                                  )
+                                                : Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            top: 2.0),
+                                                    child: TextField(
+                                                      controller:
+                                                          nameControllers[i],
+                                                      decoration:
+                                                          InputDecoration(
+                                                        hintText:
+                                                            'Masukkan Nama',
+                                                        isDense: true,
+                                                        filled: true,
+                                                        fillColor: Colors.white,
+                                                        border:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(8),
+                                                          borderSide: BorderSide(
                                                               color:
                                                                   darkGreenColor,
-                                                              size: 16),
+                                                              width: 1.2),
                                                         ),
-                                                        style: regularTextStyle
-                                                            .copyWith(
-                                                                fontSize: 13),
-                                                        minLines: 1,
-                                                        maxLines: 1,
+                                                        prefixIcon: Icon(
+                                                            Icons.edit,
+                                                            color:
+                                                                darkGreenColor,
+                                                            size: 16),
                                                       ),
+                                                      style: regularTextStyle
+                                                          .copyWith(
+                                                              fontSize: 13),
+                                                      minLines: 1,
+                                                      maxLines: 1,
                                                     ),
-                                            ),
+                                                  ),
                                           ),
                                         ),
                                       ],
@@ -599,6 +630,11 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                                                           8))),
                                           style: regularTextStyle,
                                           textAlign: TextAlign.center,
+                                          inputFormatters: [
+                                            LengthLimitingTextInputFormatter(1),
+                                            FilteringTextInputFormatter
+                                                .digitsOnly,
+                                          ],
                                         ),
                                       ),
                                     )),
@@ -618,6 +654,11 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                                                           8))),
                                           style: regularTextStyle,
                                           textAlign: TextAlign.center,
+                                          inputFormatters: [
+                                            LengthLimitingTextInputFormatter(1),
+                                            FilteringTextInputFormatter
+                                                .digitsOnly,
+                                          ],
                                         ),
                                       ),
                                     )),
@@ -637,6 +678,11 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                                                           8))),
                                           style: regularTextStyle,
                                           textAlign: TextAlign.center,
+                                          inputFormatters: [
+                                            LengthLimitingTextInputFormatter(1),
+                                            FilteringTextInputFormatter
+                                                .digitsOnly,
+                                          ],
                                         ),
                                       ),
                                     )),
@@ -672,7 +718,7 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                           padding: EdgeInsets.symmetric(
                               horizontal: 32, vertical: 14),
                         ),
-                        onPressed: () {
+                        onPressed: () async {
                           final error = validateInput();
                           if (error != null) {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -683,7 +729,54 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                                   backgroundColor: redColor),
                             );
                           } else {
-                            setState(() {});
+                            final confirmed = await showDialog<bool>(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18)),
+                                title: Row(
+                                  children: [
+                                    Icon(Icons.info_outline,
+                                        color: darkGreenColor, size: 28),
+                                    SizedBox(width: 10),
+                                    Text('Konfirmasi',
+                                        style: boldTextStyle.copyWith(
+                                            color: darkGreenColor,
+                                            fontSize: 20)),
+                                  ],
+                                ),
+                                content: Text(
+                                  'Apakah Anda yakin ingin menghitung dan menampilkan hasil SAW dengan data yang sudah diinput?',
+                                  style:
+                                      regularTextStyle.copyWith(fontSize: 16),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(ctx).pop(false),
+                                    child: Text('Batal',
+                                        style: mediumTextStyle.copyWith(
+                                            color: darkGreenColor)),
+                                  ),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: darkGreenColor,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                    ),
+                                    onPressed: () =>
+                                        Navigator.of(ctx).pop(true),
+                                    child: Text('Ya, Hitung',
+                                        style: boldTextStyle.copyWith(
+                                            color: whiteColor)),
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (confirmed == true) {
+                              calculateSAW();
+                            }
                           }
                         },
                         child: Text('Hitung SAW',
@@ -743,21 +836,21 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                                       padding: EdgeInsets.symmetric(
                                           vertical: 4, horizontal: 8),
                                       child: Text(
-                                          criteriaControllers[i][0].text,
+                                          lastMatrix[i][0].toInt().toString(),
                                           style: regularTextStyle),
                                     )),
                                     DataCell(Padding(
                                       padding: EdgeInsets.symmetric(
                                           vertical: 4, horizontal: 8),
                                       child: Text(
-                                          criteriaControllers[i][1].text,
+                                          lastMatrix[i][1].toInt().toString(),
                                           style: regularTextStyle),
                                     )),
                                     DataCell(Padding(
                                       padding: EdgeInsets.symmetric(
                                           vertical: 4, horizontal: 8),
                                       child: Text(
-                                          criteriaControllers[i][2].text,
+                                          lastMatrix[i][2].toInt().toString(),
                                           style: regularTextStyle),
                                     )),
                                   ],
@@ -808,8 +901,6 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                                         Text('Organik', style: boldTextStyle)),
                               ],
                               rows: List.generate(5, (i) {
-                                List<int> minPerKriteria =
-                                    getMinValuePerCriteria();
                                 return DataRow(
                                   cells: [
                                     DataCell(Padding(
@@ -822,33 +913,21 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                                       padding: EdgeInsets.symmetric(
                                           vertical: 4, horizontal: 8),
                                       child: Text(
-                                          _formatNorm(minPerKriteria[0] /
-                                              (double.tryParse(
-                                                      criteriaControllers[i][0]
-                                                          .text) ??
-                                                  minPerKriteria[0])),
+                                          _formatNorm(lastNormalisasi[i][0]),
                                           style: regularTextStyle),
                                     )),
                                     DataCell(Padding(
                                       padding: EdgeInsets.symmetric(
                                           vertical: 4, horizontal: 8),
                                       child: Text(
-                                          _formatNorm(minPerKriteria[1] /
-                                              (double.tryParse(
-                                                      criteriaControllers[i][1]
-                                                          .text) ??
-                                                  minPerKriteria[1])),
+                                          _formatNorm(lastNormalisasi[i][1]),
                                           style: regularTextStyle),
                                     )),
                                     DataCell(Padding(
                                       padding: EdgeInsets.symmetric(
                                           vertical: 4, horizontal: 8),
                                       child: Text(
-                                          _formatNorm(minPerKriteria[2] /
-                                              (double.tryParse(
-                                                      criteriaControllers[i][2]
-                                                          .text) ??
-                                                  minPerKriteria[2])),
+                                          _formatNorm(lastNormalisasi[i][2]),
                                           style: regularTextStyle),
                                     )),
                                   ],
@@ -862,69 +941,166 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                     SectionCard(
                       title: 'Hasil Perhitungan SAW',
                       color: lightGreenColor.withOpacity(0.07),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
-                          columnSpacing: 32,
-                          columns: [
-                            DataColumn(
-                                label: Text('Nama', style: mediumTextStyle)),
-                            DataColumn(
-                                label: Text('Nilai Akhir',
-                                    style: mediumTextStyle)),
-                            DataColumn(
-                                label: Text('Ranking', style: mediumTextStyle)),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 12,
+                              offset: Offset(0, 4),
+                            ),
                           ],
-                          rows: ([
-                            ...sawResult
-                          ]..sort((a, b) => b['nilai'].compareTo(a['nilai'])))
-                              .map((data) {
-                            final isTop = data['ranking'] == 1;
-                            return DataRow(
-                              color: isTop
-                                  ? WidgetStateProperty.all(
-                                      lightGreenColor.withOpacity(0.25))
-                                  : null,
-                              cells: [
-                                DataCell(Text(data['nama'],
-                                    style: regularTextStyle)),
-                                DataCell(Text(data['nilai'].toString(),
-                                    style: regularTextStyle)),
-                                DataCell(Row(
-                                  children: [
-                                    Text(data['ranking'].toString(),
-                                        style: boldTextStyle.copyWith(
-                                            color: isTop
-                                                ? darkGreenColor
-                                                : blackColor)),
-                                    if (isTop) ...[
-                                      SizedBox(width: 4),
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 8, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: darkGreenColor,
-                                          borderRadius:
-                                              BorderRadius.circular(8),
+                        ),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: DataTable(
+                            columnSpacing: 32,
+                            headingRowColor: WidgetStateProperty.all(
+                                darkGreenColor.withOpacity(0.13)),
+                            dataRowMinHeight: 44,
+                            dataRowMaxHeight: 54,
+                            border: TableBorder.symmetric(
+                              inside:
+                                  BorderSide(color: lightGreyColor, width: 0.7),
+                              outside:
+                                  BorderSide(color: lightGreyColor, width: 1),
+                            ),
+                            columns: [
+                              DataColumn(
+                                label: Tooltip(
+                                  message: 'Nama Alternatif',
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 10),
+                                    child: Text('Nama',
+                                        style: mediumTextStyle.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 15),
+                                        textAlign: TextAlign.left),
+                                  ),
+                                ),
+                              ),
+                              DataColumn(
+                                numeric: true,
+                                label: Tooltip(
+                                  message: 'Nilai Akhir SAW',
+                                  child: Center(
+                                    child: Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 10),
+                                      child: Text('Nilai Akhir',
+                                          style: mediumTextStyle.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 15),
+                                          textAlign: TextAlign.center),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              DataColumn(
+                                numeric: true,
+                                label: Tooltip(
+                                  message: 'Ranking Akhir',
+                                  child: Center(
+                                    child: Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 10),
+                                      child: Text('Ranking',
+                                          style: mediumTextStyle.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 15),
+                                          textAlign: TextAlign.center),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                            rows: ([...lastResult]..sort((a, b) =>
+                                    (a['ranking'] as int)
+                                        .compareTo(b['ranking'] as int)))
+                                .asMap()
+                                .entries
+                                .map((entry) {
+                              final i = entry.key;
+                              final row = entry.value;
+                              final isTop = row['ranking'] == 1;
+                              final isZebra = i % 2 == 1;
+                              return DataRow(
+                                color: WidgetStateProperty.resolveWith<Color?>(
+                                    (Set<MaterialState> states) {
+                                  if (states.contains(MaterialState.hovered)) {
+                                    return darkGreenColor.withOpacity(0.10);
+                                  }
+                                  return isZebra
+                                      ? lightGreenColor.withOpacity(0.08)
+                                      : null;
+                                }),
+                                cells: [
+                                  DataCell(Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 8, horizontal: 8),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          row['nama'],
+                                          style: isTop
+                                              ? boldTextStyle.copyWith(
+                                                  fontSize: 16,
+                                                  color: darkGreenColor)
+                                              : regularTextStyle.copyWith(
+                                                  fontSize: 15),
+                                          textAlign: TextAlign.left,
                                         ),
-                                        child: Row(
-                                          children: [
-                                            Icon(Icons.emoji_events,
-                                                color: whiteColor, size: 16),
-                                            SizedBox(width: 3),
-                                            Text(' Terburuk',
-                                                style: boldTextStyle.copyWith(
-                                                    color: whiteColor,
-                                                    fontSize: 12)),
-                                          ],
-                                        ),
+                                        if (isTop) ...[
+                                          SizedBox(width: 6),
+                                          Tooltip(
+                                            message: 'Nilai Tertinggi',
+                                            child: Icon(Icons.emoji_events,
+                                                color: Colors.amber[700],
+                                                size: 20),
+                                          ),
+                                        ]
+                                      ],
+                                    ),
+                                  )),
+                                  DataCell(Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 8, horizontal: 8),
+                                      child: Text(
+                                        _formatNorm(row['nilai']),
+                                        style: isTop
+                                            ? boldTextStyle.copyWith(
+                                                fontSize: 16,
+                                                color: darkGreenColor)
+                                            : regularTextStyle.copyWith(
+                                                fontSize: 15),
+                                        textAlign: TextAlign.center,
                                       ),
-                                    ]
-                                  ],
-                                )),
-                              ],
-                            );
-                          }).toList(),
+                                    ),
+                                  )),
+                                  DataCell(Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 8, horizontal: 8),
+                                      child: Text(
+                                        row['ranking'].toString(),
+                                        style: isTop
+                                            ? boldTextStyle.copyWith(
+                                                fontSize: 16,
+                                                color: darkGreenColor)
+                                            : regularTextStyle.copyWith(
+                                                fontSize: 15),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  )),
+                                ],
+                              );
+                            }).toList(),
+                          ),
                         ),
                       ),
                     ),
@@ -966,49 +1142,48 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                           Text(
                               '   Setiap elemen dinormalisasi dengan rumus: r_ij = min(x_j) / x_ij (karena semua kriteria cost).'),
                           SizedBox(height: 8),
-                          Text('3. Perhitungan Nilai Akhir',
-                              style: boldTextStyle.copyWith(fontSize: 15)),
-                          Text(
-                              '   Nilai akhir setiap baris dihitung dengan rumus:'),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4.0),
-                            child: Text(
-                                '   v_i = (w1 * r_i1) + (w2 * r_i2) + (w3 * r_i3)',
-                                style: regularTextStyle.copyWith(
-                                    fontStyle: FontStyle.italic)),
-                          ),
-                          Builder(
-                            builder: (context) {
-                              // Contoh substitusi untuk baris pertama
+                          ...(() {
+                            // Sort by ranking ascending
+                            final sorted = [...lastResult]..sort((a, b) =>
+                                (a['ranking'] as int)
+                                    .compareTo(b['ranking'] as int));
+                            return List.generate(sorted.length, (idx) {
+                              final row = sorted[idx];
+                              final i = lastResult
+                                  .indexWhere((r) => r['nama'] == row['nama']);
+                              String nama = row['nama'];
                               List<int> minPerKriteria =
                                   getMinValuePerCriteria();
-                              String nama = nameControllers[0].text;
-                              String c1 = criteriaControllers[0][0].text;
-                              String c2 = criteriaControllers[0][1].text;
-                              String c3 = criteriaControllers[0][2].text;
-                              double r1 = minPerKriteria[0] /
-                                  (double.tryParse(c1) ?? minPerKriteria[0]);
-                              double r2 = minPerKriteria[1] /
-                                  (double.tryParse(c2) ?? minPerKriteria[1]);
-                              double r3 = minPerKriteria[2] /
-                                  (double.tryParse(c3) ?? minPerKriteria[2]);
-                              double v = 0.5 * r1 + 0.3 * r2 + 0.2 * r3;
+                              double r1 = lastNormalisasi[i][0];
+                              double r2 = lastNormalisasi[i][1];
+                              double r3 = lastNormalisasi[i][2];
+                              double v = row['nilai'];
+                              double c1 = lastMatrix[i][0];
+                              double c2 = lastMatrix[i][1];
+                              double c3 = lastMatrix[i][2];
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                      '   Contoh untuk baris pertama (${nama.isNotEmpty ? nama : 'Baris 1'}):',
-                                      style: regularTextStyle.copyWith(
+                                  SizedBox(height: 6),
+                                  Text('   Normalisasi untuk $nama:',
+                                      style: mediumTextStyle.copyWith(
                                           fontWeight: FontWeight.bold)),
                                   Text(
-                                      '   v₁ = (0.5 × ${_formatNorm(r1)}) + (0.3 × ${_formatNorm(r2)}) + (0.2 × ${_formatNorm(r3)}) = ${_formatNorm(v)}',
-                                      style: regularTextStyle),
+                                      '      r₁ = min(B3) / B3 = ${minPerKriteria[0]} / ${c1 != 0 ? c1.toStringAsFixed(3) : '-'} = ${_formatNorm(r1)}'),
+                                  Text(
+                                      '      r₂ = min(Anorganik) / Anorganik = ${minPerKriteria[1]} / ${c2 != 0 ? c2.toStringAsFixed(3) : '-'} = ${_formatNorm(r2)}'),
+                                  Text(
+                                      '      r₃ = min(Organik) / Organik = ${minPerKriteria[2]} / ${c3 != 0 ? c3.toStringAsFixed(3) : '-'} = ${_formatNorm(r3)}'),
+                                  Text(
+                                      '      Nilai Akhir: v = (0.5 × ${_formatNorm(r1)}) + (0.3 × ${_formatNorm(r2)}) + (0.2 × ${_formatNorm(r3)}) = ${_formatNorm(v)}',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600)),
                                 ],
                               );
-                            },
-                          ),
+                            });
+                          })(),
                           SizedBox(height: 8),
-                          Text('4. Ranking',
+                          Text('3. Ranking',
                               style: boldTextStyle.copyWith(fontSize: 15)),
                           Text(
                               '   Hasil akhir diurutkan dari nilai terbesar ke terkecil. Ranking 1 adalah yang terbaik.'),
@@ -1024,6 +1199,7 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
 
   // Tambahkan fungsi util format normalisasi
   String _formatNorm(double val) {
+    if (val == 1.0) return '1';
     return val.toStringAsFixed(3);
   }
 }
