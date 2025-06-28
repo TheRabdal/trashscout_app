@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:trash_scout/shared/theme/theme.dart';
 import 'package:trash_scout/services/firestore_service.dart';
-import 'package:flutter/services.dart';
 
 class SectionCard extends StatelessWidget {
   final String title;
