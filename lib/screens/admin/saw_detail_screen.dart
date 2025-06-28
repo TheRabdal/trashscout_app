@@ -474,9 +474,9 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                                 return DataRow(
                                   color:
                                       WidgetStateProperty.resolveWith<Color?>(
-                                          (Set<MaterialState> states) {
+                                          (Set<WidgetState> states) {
                                     if (states
-                                        .contains(MaterialState.hovered)) {
+                                        .contains(WidgetState.hovered)) {
                                       return darkGreenColor.withOpacity(0.10);
                                     }
                                     return isZebra
@@ -1099,8 +1099,8 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                               final isZebra = i % 2 == 1;
                               return DataRow(
                                 color: WidgetStateProperty.resolveWith<Color?>(
-                                    (Set<MaterialState> states) {
-                                  if (states.contains(MaterialState.hovered)) {
+                                    (Set<WidgetState> states) {
+                                  if (states.contains(WidgetState.hovered)) {
                                     return darkGreenColor.withOpacity(0.10);
                                   }
                                   return isZebra
