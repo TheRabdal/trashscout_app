@@ -600,19 +600,22 @@ class _UploadPhotoState extends State<UploadPhoto> {
                 color: lightGreyColor,
               ),
             ),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (_imageFile != null)
-                    Image.file(
+            child: Stack(
+              children: [
+                if (_imageFile != null)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.file(
                       File(_imageFile!.path),
                       width: double.infinity,
-                      height: 200,
+                      height: 227,
                       fit: BoxFit.cover,
-                    )
-                  else
-                    Column(
+                    ),
+                  )
+                else
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         GestureDetector(
                           onTap: _pickImageFromCamera,
@@ -667,8 +670,59 @@ class _UploadPhotoState extends State<UploadPhoto> {
                         ),
                       ],
                     ),
-                ],
-              ),
+                  ),
+                if (_imageFile != null)
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: Material(
+                      color: Colors.black38,
+                      shape: CircleBorder(),
+                      child: InkWell(
+                        customBorder: CircleBorder(),
+                        onTap: () async {
+                          showModalBottomSheet(
+                            context: context,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(18)),
+                            ),
+                            builder: (ctx) => SafeArea(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ListTile(
+                                    leading: Icon(Icons.photo_library,
+                                        color: darkGreenColor),
+                                    title: Text('Ganti Foto (Galeri)'),
+                                    onTap: () {
+                                      Navigator.pop(ctx);
+                                      _pickImageFromGallery();
+                                    },
+                                  ),
+                                  ListTile(
+                                    leading: Icon(Icons.camera_alt,
+                                        color: darkGreenColor),
+                                    title: Text('Ambil Ulang (Kamera)'),
+                                    onTap: () {
+                                      Navigator.pop(ctx);
+                                      _pickImageFromCamera();
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(6.0),
+                          child:
+                              Icon(Icons.edit, color: Colors.white, size: 26),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
         ],
