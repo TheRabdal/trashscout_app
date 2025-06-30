@@ -111,22 +111,63 @@ class _SeeAllHistoryScreenState extends State<SeeAllHistoryScreen> {
                             final List<String> categories =
                                 List<String>.from(report['categories']);
                             final data = report.data() as Map<String, dynamic>?;
-                            return ReportHistory(
-                              reportTitle: report['title'],
-                              status: report['status'],
-                              imageUrl: report['imageUrl'],
-                              statusBackgroundColor: _getStatusColor(
-                                report['status'],
-                              ),
-                              description: report['description'],
-                              date: formattedDate,
-                              categories: categories,
-                              latitude: report['latitude'],
-                              longitude: report['longitude'],
-                              locationDetail: report['locationDetail'],
-                              beratB3: (data?['beratB3'] ?? 1),
-                              beratAnorganik: (data?['beratAnorganik'] ?? 1),
-                              beratOrganik: (data?['beratOrganik'] ?? 1),
+                            return Stack(
+                              children: [
+                                ReportHistory(
+                                  reportTitle: report['title'],
+                                  status: report['status'],
+                                  imageUrl: report['imageUrl'],
+                                  statusBackgroundColor: _getStatusColor(
+                                    report['status'],
+                                  ),
+                                  description: report['description'],
+                                  date: formattedDate,
+                                  categories: categories,
+                                  latitude: report['latitude'],
+                                  longitude: report['longitude'],
+                                  locationDetail: report['locationDetail'],
+                                  beratB3: (data?['beratB3'] ?? 1),
+                                  beratAnorganik:
+                                      (data?['beratAnorganik'] ?? 1),
+                                  beratOrganik: (data?['beratOrganik'] ?? 1),
+                                ),
+                                Positioned(
+                                  right: 0,
+                                  top: 0,
+                                  child: IconButton(
+                                    icon: Icon(Icons.delete, color: Colors.red),
+                                    onPressed: () async {
+                                      final confirm = await showDialog<bool>(
+                                        context: context,
+                                        builder: (ctx) => AlertDialog(
+                                          title: Text('Hapus Laporan?'),
+                                          content: Text(
+                                              'Yakin ingin menghapus laporan ini?'),
+                                          actions: [
+                                            TextButton(
+                                                onPressed: () =>
+                                                    Navigator.pop(ctx, false),
+                                                child: Text('Batal')),
+                                            TextButton(
+                                                onPressed: () =>
+                                                    Navigator.pop(ctx, true),
+                                                child: Text('Hapus')),
+                                          ],
+                                        ),
+                                      );
+                                      if (confirm == true) {
+                                        await FirebaseFirestore.instance
+                                            .collection('users')
+                                            .doc(FirebaseAuth
+                                                .instance.currentUser!.uid)
+                                            .collection('reports')
+                                            .doc(report.id)
+                                            .delete();
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ],
                             );
                           }).toList(),
                         ],
