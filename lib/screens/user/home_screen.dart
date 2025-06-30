@@ -194,6 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             .format((report['date'] as Timestamp).toDate());
                         final List<String> categories =
                             List<String>.from(report['categories']);
+                        final data = report.data() as Map<String, dynamic>?;
                         return ReportHistory(
                           reportTitle: report['title'],
                           status: report['status'],
@@ -206,11 +207,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           latitude: report['latitude'].toString(),
                           longitude: report['longitude'].toString(),
                           locationDetail: report['locationDetail'],
-                          weightRating: (report['weightRating'] is int)
-                              ? report['weightRating']
-                              : int.tryParse(
-                                      report['weightRating'].toString()) ??
-                                  1,
+                          beratB3: (data?['beratB3'] ?? 1),
+                          beratAnorganik: (data?['beratAnorganik'] ?? 1),
+                          beratOrganik: (data?['beratOrganik'] ?? 1),
                         );
                       },
                     );

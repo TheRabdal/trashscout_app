@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:trash_scout/main.dart';
 
 void main() {
   testWidgets('Blackbox Testing: Tombol menambah angka',
@@ -21,6 +22,26 @@ void main() {
 
     // Pastikan angka bertambah
     expect(find.text('1'), findsOneWidget);
+  });
+
+  testWidgets('SplashScreen menampilkan logo aplikasi',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(const MyApp());
+    // Cek apakah gambar logo tampil
+    final logoFinder = find.byType(Image);
+    expect(logoFinder, findsOneWidget);
+    // Cek apakah ada widget dengan asset app_logo.png
+    final assetFinder = find.byWidgetPredicate((widget) {
+      if (widget is Container && widget.decoration is BoxDecoration) {
+        final decoration = widget.decoration as BoxDecoration;
+        if (decoration.image != null && decoration.image!.image is AssetImage) {
+          final asset = (decoration.image!.image as AssetImage).assetName;
+          return asset == 'assets/app_logo.png';
+        }
+      }
+      return false;
+    });
+    expect(assetFinder, findsOneWidget);
   });
 }
 

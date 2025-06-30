@@ -20,6 +20,9 @@ class ReportItemWidget extends StatelessWidget {
   final String user;
   final VoidCallback? onTap;
   final int weightRating;
+  final int beratB3;
+  final int beratAnorganik;
+  final int beratOrganik;
 
   const ReportItemWidget({
     required this.reportTitle,
@@ -37,6 +40,9 @@ class ReportItemWidget extends StatelessWidget {
     required this.user,
     required this.locationDetail,
     required this.weightRating,
+    required this.beratB3,
+    required this.beratAnorganik,
+    required this.beratOrganik,
     this.onTap,
   });
 
@@ -60,7 +66,9 @@ class ReportItemWidget extends StatelessWidget {
                     latitude: latitude,
                     longitude: longitude,
                     locationDetail: locationDetail,
-                    weightRating: weightRating,
+                    beratB3: beratB3,
+                    beratAnorganik: beratAnorganik,
+                    beratOrganik: beratOrganik,
                   ),
                 ),
               );

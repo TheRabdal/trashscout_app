@@ -28,7 +28,9 @@ class _CreateReportPageState extends State<CreateReportPage> {
   String? _longitude;
   final TextEditingController _locationDetailController =
       TextEditingController();
-  int? _selectedRating;
+  int? _selectedBeratAnorganik;
+  int? _selectedBeratOrganik;
+  int? _selectedBeratB3;
 
   void _handleCategoriesChanged(List<String> category) {
     if (mounted) {
@@ -172,7 +174,9 @@ class _CreateReportPageState extends State<CreateReportPage> {
           _latitude != null &&
           _longitude != null &&
           locationDetail.isNotEmpty &&
-          _selectedRating != null) {
+          _selectedBeratAnorganik != null &&
+          _selectedBeratOrganik != null &&
+          _selectedBeratB3 != null) {
         try {
           User? user = FirebaseAuth.instance.currentUser;
           if (user != null) {
@@ -196,7 +200,9 @@ class _CreateReportPageState extends State<CreateReportPage> {
               'locationDetail': locationDetail,
               'status': 'Dibuat',
               'date': Timestamp.now(),
-              'weightRating': _selectedRating,
+              'beratAnorganik': _selectedBeratAnorganik,
+              'beratOrganik': _selectedBeratOrganik,
+              'beratB3': _selectedBeratB3,
             });
 
             Navigator.pushReplacement(
@@ -220,8 +226,8 @@ class _CreateReportPageState extends State<CreateReportPage> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content:
-                Text("Harap isi semua field dan pilih rating berat sampah"),
+            content: Text(
+                "Harap isi semua field dan pilih rating berat untuk semua kategori"),
           ),
         );
       }
@@ -273,9 +279,22 @@ class _CreateReportPageState extends State<CreateReportPage> {
                     style: mediumTextStyle.copyWith(
                         color: blackColor, fontSize: 18)),
                 SizedBox(height: 6),
+                Text('B3', style: mediumTextStyle),
                 _WeightRatingSelector(
-                  selectedRating: _selectedRating,
-                  onChanged: (val) => setState(() => _selectedRating = val),
+                  selectedRating: _selectedBeratB3,
+                  onChanged: (val) => setState(() => _selectedBeratB3 = val),
+                ),
+                Text('Anorganik', style: mediumTextStyle),
+                _WeightRatingSelector(
+                  selectedRating: _selectedBeratAnorganik,
+                  onChanged: (val) =>
+                      setState(() => _selectedBeratAnorganik = val),
+                ),
+                Text('Organik', style: mediumTextStyle),
+                _WeightRatingSelector(
+                  selectedRating: _selectedBeratOrganik,
+                  onChanged: (val) =>
+                      setState(() => _selectedBeratOrganik = val),
                 ),
                 UploadPhoto(
                   onFileChanged: _handleImageChanged,
@@ -379,9 +398,9 @@ class _TrashCategoryState extends State<TrashCategory> {
   @override
   Widget build(BuildContext context) {
     List<String> categories = [
-      'Organik',
-      'Anorganik',
       'B3',
+      'Anorganik',
+      'Organik'
     ];
 
     return Container(

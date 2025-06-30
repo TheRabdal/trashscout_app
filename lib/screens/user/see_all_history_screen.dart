@@ -110,6 +110,7 @@ class _SeeAllHistoryScreenState extends State<SeeAllHistoryScreen> {
                                 .format((report['date'] as Timestamp).toDate());
                             final List<String> categories =
                                 List<String>.from(report['categories']);
+                            final data = report.data() as Map<String, dynamic>?;
                             return ReportHistory(
                               reportTitle: report['title'],
                               status: report['status'],
@@ -123,7 +124,9 @@ class _SeeAllHistoryScreenState extends State<SeeAllHistoryScreen> {
                               latitude: report['latitude'],
                               longitude: report['longitude'],
                               locationDetail: report['locationDetail'],
-                              weightRating: report['weightRating'],
+                              beratB3: (data?['beratB3'] ?? 1),
+                              beratAnorganik: (data?['beratAnorganik'] ?? 1),
+                              beratOrganik: (data?['beratOrganik'] ?? 1),
                             );
                           }).toList(),
                         ],

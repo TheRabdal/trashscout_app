@@ -12,7 +12,9 @@ class DetailReportPage extends StatelessWidget {
   final String latitude;
   final String longitude;
   final String locationDetail;
-  final int weightRating;
+  final int beratB3;
+  final int beratAnorganik;
+  final int beratOrganik;
 
   const DetailReportPage({
     required this.reportTitle,
@@ -24,7 +26,9 @@ class DetailReportPage extends StatelessWidget {
     required this.latitude,
     required this.longitude,
     required this.locationDetail,
-    required this.weightRating,
+    required this.beratB3,
+    required this.beratAnorganik,
+    required this.beratOrganik,
   });
 
   Future<void> _launchMap() async {
@@ -119,7 +123,9 @@ class DetailReportPage extends StatelessWidget {
                 longitude: longitude,
                 onLaunchMap: _launchMap,
                 locationDetail: locationDetail,
-                weightRating: weightRating,
+                beratB3: beratB3,
+                beratAnorganik: beratAnorganik,
+                beratOrganik: beratOrganik,
               ),
             ),
             SizedBox(height: 30),
@@ -140,7 +146,9 @@ class ReportDetailContent extends StatelessWidget {
   final String longitude;
   final VoidCallback onLaunchMap;
   final String locationDetail;
-  final int weightRating;
+  final int beratB3;
+  final int beratAnorganik;
+  final int beratOrganik;
 
   const ReportDetailContent({
     super.key,
@@ -153,7 +161,9 @@ class ReportDetailContent extends StatelessWidget {
     required this.longitude,
     required this.onLaunchMap,
     required this.locationDetail,
-    required this.weightRating,
+    required this.beratB3,
+    required this.beratAnorganik,
+    required this.beratOrganik,
   });
 
   Widget _buildWeightRatingBadge(int rating) {
@@ -245,7 +255,63 @@ class ReportDetailContent extends StatelessWidget {
           ),
         ),
         SizedBox(height: 16),
-        _buildWeightRatingBadge(weightRating),
+        Text('Berat Sampah',
+            style: semiBoldTextStyle.copyWith(color: blackColor, fontSize: 18)),
+        SizedBox(height: 6),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            // Jika lebar cukup, tampilkan Row, jika tidak, tampilkan Column
+            if (constraints.maxWidth > 420) {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('B3', style: mediumTextStyle),
+                        _buildWeightRatingBadge(beratB3),
+                      ],
+                    ),
+                  ),
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Anorganik', style: mediumTextStyle),
+                        _buildWeightRatingBadge(beratAnorganik),
+                      ],
+                    ),
+                  ),
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Organik', style: mediumTextStyle),
+                        _buildWeightRatingBadge(beratOrganik),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            } else {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('B3', style: mediumTextStyle),
+                  _buildWeightRatingBadge(beratB3),
+                  SizedBox(height: 8),
+                  Text('Anorganik', style: mediumTextStyle),
+                  _buildWeightRatingBadge(beratAnorganik),
+                  SizedBox(height: 8),
+                  Text('Organik', style: mediumTextStyle),
+                  _buildWeightRatingBadge(beratOrganik),
+                ],
+              );
+            }
+          },
+        ),
+        SizedBox(height: 10),
         Text(
           'Kategori',
           style: semiBoldTextStyle.copyWith(
