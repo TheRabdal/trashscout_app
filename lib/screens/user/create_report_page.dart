@@ -153,9 +153,45 @@ class _CreateReportPageState extends State<CreateReportPage> {
         },
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Form tidak valid"),
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          backgroundColor: Colors.white,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 54),
+              SizedBox(height: 12),
+              Text(
+                'Lengkapi data terlebih dahulu',
+                style: boldTextStyle.copyWith(
+                    color: Colors.orange[800], fontSize: 19),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 8),
+              Text(
+                'Pastikan semua field sudah diisi dengan benar sebelum mengirim laporan.',
+                style: regularTextStyle.copyWith(
+                    color: darkGreyColor, fontSize: 15),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 18),
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange[700],
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                ),
+                onPressed: () => Navigator.pop(ctx),
+                icon: Icon(Icons.close, color: whiteColor),
+                label: Text('Tutup',
+                    style: boldTextStyle.copyWith(color: whiteColor)),
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -397,11 +433,7 @@ class _TrashCategoryState extends State<TrashCategory> {
 
   @override
   Widget build(BuildContext context) {
-    List<String> categories = [
-      'B3',
-      'Anorganik',
-      'Organik'
-    ];
+    List<String> categories = ['B3', 'Anorganik', 'Organik'];
 
     return Container(
       margin: EdgeInsets.only(
@@ -736,12 +768,48 @@ class _SelectLocationState extends State<SelectLocation> {
                 long = '${position.longitude}';
                 print('Latitude: $lat , Longitude: $long');
                 widget.onLocationChanged(lat, long);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    backgroundColor: whiteColor,
-                    content: Text(
-                      "Lokasi berhasil diambil",
-                      style: regularTextStyle.copyWith(color: blackColor),
+                Navigator.pop(context); // Tutup dialog loading
+                await Future.delayed(Duration(milliseconds: 200));
+                showDialog(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18)),
+                    backgroundColor: Colors.white,
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.location_on,
+                            color: darkGreenColor, size: 54),
+                        SizedBox(height: 12),
+                        Text(
+                          'Lokasi Berhasil Diambil!',
+                          style: boldTextStyle.copyWith(
+                              color: darkGreenColor, fontSize: 20),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Koordinat lokasi sudah tersimpan. Pastikan detail lokasi sudah benar.',
+                          style: regularTextStyle.copyWith(
+                              color: darkGreyColor, fontSize: 15),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 18),
+                        ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: darkGreenColor,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 10),
+                          ),
+                          onPressed: () => Navigator.pop(ctx),
+                          icon: Icon(Icons.check, color: whiteColor),
+                          label: Text('Tutup',
+                              style: boldTextStyle.copyWith(color: whiteColor)),
+                        ),
+                      ],
                     ),
                   ),
                 );
@@ -752,8 +820,6 @@ class _SelectLocationState extends State<SelectLocation> {
                     content: Text("Gagal mengambil lokasi"),
                   ),
                 );
-              } finally {
-                Navigator.pop(context); // Menutup dialog loading
               }
             },
           ),
@@ -818,24 +884,106 @@ class _WeightRatingSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> options = [
+      {'label': 'Pilih terlebih dahulu', 'rating': null, 'desc': ''},
+      {'label': 'Tidak ada', 'rating': 0, 'desc': 'Tidak ada sampah'},
       {'label': '< 1 kg', 'rating': 4, 'desc': 'Baik'},
       {'label': '1 – 2 kg', 'rating': 3, 'desc': 'Cukup'},
       {'label': '3 – 4 kg', 'rating': 2, 'desc': 'Buruk'},
       {'label': '> 4 kg', 'rating': 1, 'desc': 'Sangat buruk'},
     ];
+    final selected = options.firstWhere(
+      (opt) => opt['rating'] == selectedRating,
+      orElse: () => <String, dynamic>{},
+    );
     return Column(
-      children: options.map((opt) {
-        return RadioListTile<int>(
-          value: opt['rating'],
-          groupValue: selectedRating,
-          onChanged: (val) => onChanged(val!),
-          title:
-              Text(opt['label'], style: mediumTextStyle.copyWith(fontSize: 16)),
-          subtitle:
-              Text(opt['desc'], style: regularTextStyle.copyWith(fontSize: 13)),
-          activeColor: darkGreenColor,
-        );
-      }).toList(),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        DropdownButtonFormField<int>(
+          value: selectedRating,
+          isExpanded: true,
+          icon: Icon(Icons.arrow_drop_down_rounded,
+              color: darkGreenColor, size: 28),
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: darkGreenColor, width: 1.4),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: lightGreenColor, width: 1.2),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: darkGreenColor, width: 2),
+            ),
+            contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            hintText: 'Pilih rating berat sampah...',
+            hintStyle: regularTextStyle.copyWith(color: Colors.grey[500]),
+            prefixIcon: Icon(Icons.scale, color: darkGreenColor, size: 22),
+            filled: true,
+            fillColor: Colors.white,
+          ),
+          dropdownColor: Colors.white,
+          style: mediumTextStyle.copyWith(fontSize: 16, color: blackColor),
+          items: options
+              .map((opt) => DropdownMenuItem<int>(
+                    value: opt['rating'],
+                    enabled: opt['rating'] != null,
+                    child: Row(
+                      children: [
+                        if (opt['rating'] != null && opt['rating'] != 0)
+                          Icon(Icons.circle,
+                              size: 12,
+                              color: opt['rating'] == 4
+                                  ? Colors.green
+                                  : opt['rating'] == 3
+                                      ? Colors.lightGreen
+                                      : opt['rating'] == 2
+                                          ? Colors.orange
+                                          : Colors.red),
+                        if (opt['rating'] == 0)
+                          Icon(Icons.remove_circle_outline,
+                              size: 16, color: Colors.grey),
+                        if (opt['rating'] != null) SizedBox(width: 8),
+                        Text(opt['label'],
+                            style: mediumTextStyle.copyWith(
+                                fontSize: 16,
+                                color: opt['rating'] == null
+                                    ? Colors.grey
+                                    : blackColor)),
+                      ],
+                    ),
+                  ))
+              .toList(),
+          onChanged: (val) {
+            if (val != null) onChanged(val);
+          },
+          validator: (val) {
+            if (val == null) return 'Pilih rating berat terlebih dahulu';
+            return null;
+          },
+        ),
+        if (selected.isNotEmpty && selected['rating'] != null)
+          Padding(
+            padding: const EdgeInsets.only(left: 4, top: 4),
+            child: Text(
+              selected['desc'],
+              style: regularTextStyle.copyWith(
+                fontSize: 13,
+                color: selected['rating'] == 4
+                    ? Colors.green
+                    : selected['rating'] == 3
+                        ? Colors.lightGreen
+                        : selected['rating'] == 2
+                            ? Colors.orange
+                            : selected['rating'] == 1
+                                ? Colors.red
+                                : Colors.grey,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
