@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:trash_scout/shared/date_formatter.dart';
 import 'package:trash_scout/shared/theme/theme.dart';
-import 'package:trash_scout/shared/widgets/user/report_history.dart';
 import 'package:trash_scout/screens/user/detail_report_page.dart';
 
 class SeeAllHistoryScreen extends StatefulWidget {

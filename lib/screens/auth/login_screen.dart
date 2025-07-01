@@ -149,173 +149,278 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
-      body: SingleChildScrollView(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            minHeight: MediaQuery.of(context).size.height,
-          ),
-          child: IntrinsicHeight(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  margin: const EdgeInsets.only(
-                    top: 150,
-                    left: 16,
-                    right: 16,
-                  ),
-                  width: double.infinity,
-                  height: 155,
-                  decoration: const BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage('assets/login_asset.png'),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: MediaQuery.of(context).size.height,
+              ),
+              child: IntrinsicHeight(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(
+                        top: 150,
+                        left: 16,
+                        right: 16,
+                      ),
+                      width: double.infinity,
+                      height: 155,
+                      decoration: const BoxDecoration(
+                        image: DecorationImage(
+                          image: AssetImage('assets/login_asset.png'),
+                        ),
+                      ),
                     ),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.only(
+                        top: 23,
+                        left: 16,
+                        right: 16,
+                        bottom: 66,
+                      ),
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: whiteColor,
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(35),
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          Center(
+                            child: Text(
+                              'Masuk ke Akun Anda',
+                              style: boldTextStyle.copyWith(
+                                fontSize: 26,
+                                color: blackColor,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 35),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              CustomTextform(
+                                formTitle: 'Email',
+                                hintText: 'Masukan Email',
+                                textInputType: TextInputType.emailAddress,
+                                controller: _emailController,
+                              ),
+                              const SizedBox(height: 20),
+                              CustomTextform(
+                                formTitle: 'Kata Sandi',
+                                hintText: 'Masukan Kata Sandi',
+                                obscureText: true,
+                                controller: _passwordController,
+                              ),
+                              TextButton(
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.all(0),
+                                  alignment: Alignment.topRight,
+                                ),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          ResetPasswordScreen(),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  'Lupa kata sandi',
+                                  style: mediumTextStyle.copyWith(
+                                    color: darkGreenColor,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          CustomButton(
+                            onPressed: () {
+                              loginUser();
+                            },
+                            buttonText: 'Masuk',
+                          ),
+                          SizedBox(height: 12),
+                          // GestureDetector(
+                          //   onTap: _signInWithGoogle,
+                          //   child: Container(
+                          //     width: double.infinity,
+                          //     height: 60,
+                          //     decoration: BoxDecoration(
+                          //       borderRadius: BorderRadius.circular(12),
+                          //       border: Border.all(
+                          //         color: darkGreenColor,
+                          //         width: 1,
+                          //       ),
+                          //     ),
+                          //     child: Center(
+                          //       child: Text(
+                          //         'Masuk dengan Google',
+                          //         style: semiBoldTextStyle.copyWith(
+                          //           color: darkGreenColor,
+                          //           fontSize: 24,
+                          //         ),
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
+                          if (_error.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 20),
+                              child: Text(
+                                _error,
+                                style: regularTextStyle.copyWith(
+                                  color: redColor,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          const SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Belum punya akun? ',
+                                style: mediumTextStyle.copyWith(
+                                  color: lightGreyColor,
+                                  fontSize: 15,
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => SignUpScreen(),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  'Daftar',
+                                  style: semiBoldTextStyle.copyWith(
+                                    color: darkGreenColor,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          // Tombol info di pojok kanan atas
+          Positioned(
+            top: 36,
+            right: 18,
+            child: PopupMenuButton<String>(
+              icon: Icon(Icons.info_outline_rounded,
+                  color: darkGreenColor, size: 28),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              onSelected: (value) {
+                if (value == 'admin') {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)),
+                      title: Row(
+                        children: [
+                          Icon(Icons.admin_panel_settings,
+                              color: darkGreenColor),
+                          SizedBox(width: 8),
+                          Text('Panduan Admin'),
+                        ],
+                      ),
+                      content: SingleChildScrollView(
+                        child: Text(
+                          '''Sebagai Admin, Anda dapat:
+- Melihat, memproses, dan menyelesaikan laporan
+- Mengelola prioritas laporan
+- Melihat rekap dan statistik laporan
+- Mengakses detail setiap laporan dan mengubah statusnya''',
+                          style: regularTextStyle.copyWith(fontSize: 15),
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx),
+                          child: Text('Tutup'),
+                        ),
+                      ],
+                    ),
+                  );
+                } else if (value == 'user') {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)),
+                      title: Row(
+                        children: [
+                          Icon(Icons.person, color: lightGreenColor),
+                          SizedBox(width: 8),
+                          Text('Panduan User'),
+                        ],
+                      ),
+                      content: SingleChildScrollView(
+                        child: Text(
+                          '''Sebagai User, Anda dapat:
+- Membuat laporan sampah baru
+- Melihat riwayat dan status laporan
+- Mengedit atau menghapus laporan sendiri
+- Melihat detail dan perkembangan laporan
+- Mendapatkan notifikasi status laporan''',
+                          style: regularTextStyle.copyWith(fontSize: 15),
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx),
+                          child: Text('Tutup'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+              },
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: 'admin',
+                  child: Row(
+                    children: [
+                      Icon(Icons.admin_panel_settings, color: darkGreenColor),
+                      SizedBox(width: 8),
+                      Text('Panduan Admin'),
+                    ],
                   ),
                 ),
-                const Spacer(),
-                Container(
-                  padding: const EdgeInsets.only(
-                    top: 23,
-                    left: 16,
-                    right: 16,
-                    bottom: 66,
-                  ),
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: whiteColor,
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(35),
-                    ),
-                  ),
-                  child: Column(
+                PopupMenuItem(
+                  value: 'user',
+                  child: Row(
                     children: [
-                      Center(
-                        child: Text(
-                          'Masuk ke Akun Anda',
-                          style: boldTextStyle.copyWith(
-                            fontSize: 26,
-                            color: blackColor,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 35),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          CustomTextform(
-                            formTitle: 'Email',
-                            hintText: 'Masukan Email',
-                            textInputType: TextInputType.emailAddress,
-                            controller: _emailController,
-                          ),
-                          const SizedBox(height: 20),
-                          CustomTextform(
-                            formTitle: 'Kata Sandi',
-                            hintText: 'Masukan Kata Sandi',
-                            obscureText: true,
-                            controller: _passwordController,
-                          ),
-                          TextButton(
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.all(0),
-                              alignment: Alignment.topRight,
-                            ),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ResetPasswordScreen(),
-                                ),
-                              );
-                            },
-                            child: Text(
-                              'Lupa kata sandi',
-                              style: mediumTextStyle.copyWith(
-                                color: darkGreenColor,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      CustomButton(
-                        onPressed: () {
-                          loginUser();
-                        },
-                        buttonText: 'Masuk',
-                      ),
-                      SizedBox(height: 12),
-                      // GestureDetector(
-                      //   onTap: _signInWithGoogle,
-                      //   child: Container(
-                      //     width: double.infinity,
-                      //     height: 60,
-                      //     decoration: BoxDecoration(
-                      //       borderRadius: BorderRadius.circular(12),
-                      //       border: Border.all(
-                      //         color: darkGreenColor,
-                      //         width: 1,
-                      //       ),
-                      //     ),
-                      //     child: Center(
-                      //       child: Text(
-                      //         'Masuk dengan Google',
-                      //         style: semiBoldTextStyle.copyWith(
-                      //           color: darkGreenColor,
-                      //           fontSize: 24,
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
-                      if (_error.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 20),
-                          child: Text(
-                            _error,
-                            style: regularTextStyle.copyWith(
-                              color: redColor,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Belum punya akun? ',
-                            style: mediumTextStyle.copyWith(
-                              color: lightGreyColor,
-                              fontSize: 15,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => SignUpScreen(),
-                                ),
-                              );
-                            },
-                            child: Text(
-                              'Daftar',
-                              style: semiBoldTextStyle.copyWith(
-                                color: darkGreenColor,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                      Icon(Icons.person, color: lightGreenColor),
+                      SizedBox(width: 8),
+                      Text('Panduan User'),
                     ],
                   ),
                 ),
               ],
             ),
           ),
-        ),
+        ],
       ),
     );
   }
