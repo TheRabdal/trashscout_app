@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:trash_scout/screens/user/create_report_page.dart';
 import 'package:trash_scout/screens/user/mail_box_screen.dart';
 import 'package:trash_scout/screens/user/see_all_history_screen.dart';
+import 'package:trash_scout/screens/user/detail_report_page.dart';
 import 'package:trash_scout/services/firestore_service.dart';
 import 'package:trash_scout/shared/theme/theme.dart';
 import 'package:trash_scout/shared/widgets/user/custom_button.dart';
@@ -70,15 +71,15 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Image.asset(
                 'assets/leaderboard_bg.png',
                 width: 260,
-          ),
+              ),
             ),
           ),
           SafeArea(
-          child: SingleChildScrollView(
+            child: SingleChildScrollView(
               child: Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-            child: Column(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Header glassmorphism
@@ -149,8 +150,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 color: whiteColor,
                                                 fontSize: 16),
                                             overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
+                                          ),
+                                        ),
                                         SizedBox(width: 4),
                                         Container(
                                           padding: EdgeInsets.symmetric(
@@ -195,60 +196,60 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ],
                                 ),
                                 child: IconButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
                                         builder: (context) => MailBoxScreen(),
-                          ),
-                        );
-                      },
+                                      ),
+                                    );
+                                  },
                                   icon: Icon(Icons.mail_outline,
                                       color: darkGreenColor, size: 22),
                                   tooltip: 'Kotak Masuk',
                                 ),
-                    ),
-                  ],
-                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                     SizedBox(height: 32),
                     // Statistik laporan
-                StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(user.uid)
-                      .collection('reports')
-                      .snapshots(),
-                  builder: (context, snapshot) {
+                    StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(user.uid)
+                          .collection('reports')
+                          .snapshots(),
+                      builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                      return Center(
-                          child: CircularProgressIndicator(
+                          return Center(
+                              child: CircularProgressIndicator(
                                   color: darkGreenColor));
-                    }
-                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                        }
+                        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                           return _UserStatCard(
-                        totalCreated: 0,
-                        totalInProcess: 0,
+                              totalCreated: 0,
+                              totalInProcess: 0,
                               totalCompleted: 0);
-                    }
-                    var reports = snapshot.data!.docs;
-                    int totalCreated = reports.length;
-                    int totalInProcess = reports
-                        .where((doc) => doc['status'] == 'Diproses')
-                        .length;
-                    int totalCompleted = reports
-                        .where((doc) => doc['status'] == 'Selesai')
-                        .length;
+                        }
+                        var reports = snapshot.data!.docs;
+                        int totalCreated = reports.length;
+                        int totalInProcess = reports
+                            .where((doc) => doc['status'] == 'Diproses')
+                            .length;
+                        int totalCompleted = reports
+                            .where((doc) => doc['status'] == 'Selesai')
+                            .length;
                         return _UserStatCard(
-                      totalCreated: totalCreated,
-                      totalInProcess: totalInProcess,
-                      totalCompleted: totalCompleted,
-                    );
-                  },
-                ),
+                          totalCreated: totalCreated,
+                          totalInProcess: totalInProcess,
+                          totalCompleted: totalCompleted,
+                        );
+                      },
+                    ),
                     SizedBox(height: 32),
                     // Tombol Buat Laporan
                     Center(
@@ -264,7 +265,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         icon: Icon(Icons.add_circle_outline,
                             color: whiteColor, size: 24),
                         label: Text('Buat Laporan',
-                      style: boldTextStyle.copyWith(
+                            style: boldTextStyle.copyWith(
                                 color: whiteColor, fontSize: 18)),
                         onPressed: () {
                           Navigator.push(
@@ -277,46 +278,74 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     SizedBox(height: 32),
-                    // Riwayat laporan terbaru
+                    // Laporan terbaru
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Riwayat Laporan Terbaru',
+                        Text('Laporan Terbaru',
                             style: boldTextStyle.copyWith(
                                 color: darkGreenColor, fontSize: 22)),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SeeAllHistoryScreen(),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.85),
+                            border:
+                                Border.all(color: darkGreenColor, width: 1.2),
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: [
+                              BoxShadow(
+                                color: darkGreenColor.withOpacity(0.07),
+                                blurRadius: 6,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
                           ),
-                        );
-                      },
-                          child: Text('Lihat Semua',
-                        style: mediumTextStyle.copyWith(
-                                  color: darkGreenColor, fontSize: 15)),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(10),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => SeeAllHistoryScreen(),
+                                  ),
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 14, vertical: 7),
+                                child: Text(
+                                  'Lihat Semua',
+                                  style: mediumTextStyle.copyWith(
+                                    color: darkGreenColor,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
                     SizedBox(height: 10),
-                StreamBuilder(
-                  stream: FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(user.uid)
-                      .collection('reports')
-                      .orderBy('date', descending: true)
-                      .limit(5)
-                      .snapshots(),
+                    StreamBuilder(
+                      stream: FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(user.uid)
+                          .collection('reports')
+                          .orderBy('date', descending: true)
+                          .limit(5)
+                          .snapshots(),
                       builder:
                           (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                    if (!snapshot.hasData) {
-                      return Center(
-                          child: CircularProgressIndicator(
+                        if (!snapshot.hasData) {
+                          return Center(
+                              child: CircularProgressIndicator(
                                   color: darkGreenColor));
-                    }
-                    var reports = snapshot.data!.docs;
-                    if (reports.isEmpty) {
+                        }
+                        var reports = snapshot.data!.docs;
+                        if (reports.isEmpty) {
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 32),
                             child: Center(
@@ -326,39 +355,39 @@ class _HomeScreenState extends State<HomeScreen> {
                                       color: lightGreenColor, size: 54),
                                   SizedBox(height: 10),
                                   Text('Belum ada laporan terbaru.',
-                          style: regularTextStyle.copyWith(
+                                      style: regularTextStyle.copyWith(
                                           color: darkGreyColor)),
                                 ],
-                          ),
-                        ),
-                      );
-                    }
+                              ),
+                            ),
+                          );
+                        }
                         return Column(
                           children: reports.map((report) {
-                        String formattedDate = DateFormat('dd MMMM yyyy')
-                            .format((report['date'] as Timestamp).toDate());
-                        final List<String> categories =
-                            List<String>.from(report['categories']);
+                            String formattedDate = DateFormat('dd MMMM yyyy')
+                                .format((report['date'] as Timestamp).toDate());
+                            final List<String> categories =
+                                List<String>.from(report['categories']);
                             final data = report.data() as Map<String, dynamic>?;
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 16),
                               child: _UserReportCard(
                                 report: report,
                                 formattedDate: formattedDate,
-                          categories: categories,
+                                categories: categories,
                                 data: data,
                                 getStatusColor: _getStatusColor,
                               ),
-                        );
+                            );
                           }).toList(),
-                    );
-                  },
-                ),
+                        );
+                      },
+                    ),
                     SizedBox(height: 40),
-              ],
+                  ],
+                ),
+              ),
             ),
-          ),
-        ),
           ),
         ],
       ),
@@ -393,7 +422,7 @@ class _UserStatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(18),
-              decoration: BoxDecoration(
+      decoration: BoxDecoration(
         color: whiteColor,
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
@@ -401,12 +430,12 @@ class _UserStatCard extends StatelessWidget {
             color: Colors.black12,
             blurRadius: 16,
             offset: Offset(0, 6),
-                ),
+          ),
         ],
-            ),
+      ),
       child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           Text('Statistik Laporan',
               style:
                   boldTextStyle.copyWith(color: darkGreenColor, fontSize: 22)),
@@ -429,10 +458,10 @@ class _UserStatCard extends StatelessWidget {
                   value: totalCompleted,
                   color: Color(0xff6BC2A2),
                   icon: Icons.check_circle_rounded),
-              ],
-            ),
-          ],
-        ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -452,7 +481,7 @@ class _AnimatedStatBox extends StatelessWidget {
     return Container(
       width: 90,
       padding: EdgeInsets.symmetric(vertical: 14, horizontal: 8),
-                decoration: BoxDecoration(
+      decoration: BoxDecoration(
         color: color.withOpacity(0.13),
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
@@ -472,7 +501,7 @@ class _AnimatedStatBox extends StatelessWidget {
           SizedBox(height: 2),
           Text(title,
               style: mediumTextStyle.copyWith(color: color, fontSize: 15)),
-      ],
+        ],
       ),
     );
   }
@@ -542,90 +571,255 @@ class _UserReportCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
+      margin: EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: whiteColor,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black12.withOpacity(0.08),
-            blurRadius: 12,
-            offset: Offset(0, 4),
+            color: Colors.black12.withOpacity(0.10),
+            blurRadius: 16,
+            offset: Offset(0, 6),
           ),
         ],
       ),
-      child: ListTile(
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        leading: ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: Image.network(
-            report['imageUrl'],
-            width: 54,
-            height: 54,
-            fit: BoxFit.cover,
-          ),
-        ),
-        title: Text(report['title'],
-            style: boldTextStyle.copyWith(fontSize: 16, color: darkGreenColor)),
-        subtitle: Column(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 2),
-            Text(formattedDate,
-                style: regularTextStyle.copyWith(
-                    fontSize: 13, color: darkGreyColor)),
-            SizedBox(height: 2),
-            Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: getStatusColor(report['status']).withOpacity(0.13),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(report['status'],
-                      style: mediumTextStyle.copyWith(
-                          color: getStatusColor(report['status']),
-                          fontSize: 12)),
-            ),
-                SizedBox(width: 8),
-                ...categories.take(2).map((cat) => Container(
-                      margin: EdgeInsets.only(right: 4),
-                      padding: EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: cat == 'B3'
-                            ? Colors.red[200]
-                            : lightGreenColor.withOpacity(0.18),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(cat,
-                          style: regularTextStyle.copyWith(
-                              color: cat == 'B3'
-                                  ? Colors.red[900]
-                                  : darkGreenColor,
-                              fontSize: 11)),
-                    )),
-              ],
-            ),
-            if (report['description'] != null &&
-                (report['description'] as String).isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 4.0),
-                child: Text(
-                  report['description'],
-                  style: regularTextStyle.copyWith(
-                      color: darkGreyColor, fontSize: 13),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+            ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: Image.network(
+                report['imageUrl'],
+                width: 70,
+                height: 70,
+                fit: BoxFit.cover,
               ),
+            ),
+            SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          report['title'],
+                          style: boldTextStyle.copyWith(
+                              fontSize: 16, color: darkGreenColor),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      SizedBox(width: 6),
+                      Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: getStatusColor(report['status'])
+                              .withOpacity(0.13),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              report['status'] == 'Selesai'
+                                  ? Icons.check_circle
+                                  : report['status'] == 'Diproses'
+                                      ? Icons.sync_rounded
+                                      : Icons.create,
+                              color: getStatusColor(report['status']),
+                              size: 15,
+                            ),
+                            SizedBox(width: 3),
+                            Text(report['status'],
+                                style: mediumTextStyle.copyWith(
+                                    color: getStatusColor(report['status']),
+                                    fontSize: 12)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(Icons.calendar_today,
+                          size: 14, color: lightGreenColor),
+                      SizedBox(width: 4),
+                      Text(
+                        formattedDate,
+                        style: regularTextStyle.copyWith(
+                            fontSize: 13, color: darkGreyColor),
+                      ),
+                      if (report.data() != null &&
+                          (report.data() as Map<String, dynamic>)
+                              .containsKey('location')) ...[
+                        SizedBox(width: 10),
+                        Icon(Icons.location_on,
+                            size: 14, color: Colors.redAccent),
+                        SizedBox(width: 2),
+                        Flexible(
+                          child: Text(
+                            report['location'] ?? '-',
+                            style: regularTextStyle.copyWith(
+                                fontSize: 13, color: darkGreyColor),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ]
+                    ],
+                  ),
+                  SizedBox(height: 4),
+                  Wrap(
+                    spacing: 4,
+                    children: categories
+                        .take(3)
+                        .map((cat) => Chip(
+                              label: Text(cat,
+                                  style: regularTextStyle.copyWith(
+                                      color: cat == 'B3'
+                                          ? Colors.red[900]
+                                          : darkGreenColor,
+                                      fontSize: 11)),
+                              backgroundColor: cat == 'B3'
+                                  ? Colors.red[100]
+                                  : lightGreenColor.withOpacity(0.18),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 7, vertical: 0),
+                              visualDensity: VisualDensity.compact,
+                            ))
+                        .toList(),
+                  ),
+                  if (report['description'] != null &&
+                      (report['description'] as String).isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4.0),
+                      child: Text(
+                        report['description'],
+                        style: regularTextStyle.copyWith(
+                            color: darkGreyColor, fontSize: 13),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            PopupMenuButton<String>(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              color: Colors.white,
+              elevation: 8,
+              offset: Offset(0, 30),
+              icon: Icon(Icons.more_vert, color: lightGreenColor),
+              onSelected: (String value) {
+                if (value == 'detail') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DetailReportPage(
+                        reportTitle: report['title'],
+                        status: report['status'],
+                        imageUrl: report['imageUrl'],
+                        description: report['description'],
+                        date: formattedDate,
+                        categories: categories,
+                        latitude: report['latitude'] ?? '',
+                        longitude: report['longitude'] ?? '',
+                        locationDetail: report['locationDetail'] ?? '-',
+                        beratB3: report['beratB3'] ?? 0,
+                        beratAnorganik: report['beratAnorganik'] ?? 0,
+                        beratOrganik: report['beratOrganik'] ?? 0,
+                      ),
+                    ),
+                  );
+                } else if (value == 'edit') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CreateReportPage(report: report),
+                    ),
+                  );
+                } else if (value == 'delete') {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text('Hapus Laporan'),
+                      content: Text(
+                          'Apakah Anda yakin ingin menghapus laporan ini?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: Text('Batal'),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            await report.reference.delete();
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text('Laporan berhasil dihapus')),
+                            );
+                          },
+                          child: Text('Hapus',
+                              style: TextStyle(color: Colors.red)),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+              },
+              itemBuilder: (BuildContext context) => [
+                PopupMenuItem(
+                  value: 'detail',
+                  child: Row(
+                    children: [
+                      Icon(Icons.visibility,
+                          color: Colors.green[700], size: 20),
+                      SizedBox(width: 10),
+                      Text('Lihat Detail',
+                          style: TextStyle(
+                              color: Colors.green[700],
+                              fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+                ),
+                PopupMenuDivider(),
+                PopupMenuItem(
+                  value: 'edit',
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit, color: Colors.blue[700], size: 20),
+                      SizedBox(width: 10),
+                      Text('Edit Laporan',
+                          style: TextStyle(
+                              color: Colors.blue[700],
+                              fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+                ),
+                PopupMenuDivider(),
+                PopupMenuItem(
+                  value: 'delete',
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete, color: Colors.red[700], size: 20),
+                      SizedBox(width: 10),
+                      Text('Hapus Laporan',
+                          style: TextStyle(
+                              color: Colors.red[700],
+                              fontWeight: FontWeight.w700)),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),
-        trailing: Icon(Icons.arrow_forward_ios_rounded,
-            color: lightGreenColor, size: 20),
-        onTap: () {
-          // Navigasi ke detail laporan user
-          // (bisa tambahkan navigasi ke detail report user di sini)
-        },
       ),
     );
   }

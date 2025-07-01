@@ -12,7 +12,8 @@ import 'package:trash_scout/shared/widgets/user/trash_category_item.dart';
 import 'package:image_picker/image_picker.dart';
 
 class CreateReportPage extends StatefulWidget {
-  const CreateReportPage({super.key});
+  final DocumentSnapshot? report;
+  const CreateReportPage({super.key, this.report});
 
   @override
   State<CreateReportPage> createState() => _CreateReportPageState();
@@ -31,6 +32,24 @@ class _CreateReportPageState extends State<CreateReportPage> {
   int? _selectedBeratAnorganik;
   int? _selectedBeratOrganik;
   int? _selectedBeratB3;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.report != null) {
+      final data = widget.report!.data() as Map<String, dynamic>;
+      _titleController.text = data['title'] ?? '';
+      _descController.text = data['description'] ?? '';
+      _selectedCategories = List<String>.from(data['categories'] ?? []);
+      _latitude = data['latitude']?.toString();
+      _longitude = data['longitude']?.toString();
+      _locationDetailController.text = data['locationDetail'] ?? '';
+      _selectedBeratB3 = data['beratB3'];
+      _selectedBeratAnorganik = data['beratAnorganik'];
+      _selectedBeratOrganik = data['beratOrganik'];
+      // _selectedImage tidak bisa diisi dari url, biarkan user upload ulang jika perlu
+    }
+  }
 
   void _handleCategoriesChanged(List<String> category) {
     if (mounted) {
@@ -283,7 +302,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
         scrolledUnderElevation: 0,
         backgroundColor: backgroundColor,
         title: Text(
-          'Buat Laporan',
+          widget.report != null ? 'Edit Laporan' : 'Buat Laporan',
           style: semiBoldTextStyle.copyWith(
             color: blackColor,
             fontSize: 26,
