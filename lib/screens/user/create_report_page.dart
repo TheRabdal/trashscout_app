@@ -334,23 +334,29 @@ class _CreateReportPageState extends State<CreateReportPage> {
                     style: mediumTextStyle.copyWith(
                         color: blackColor, fontSize: 18)),
                 SizedBox(height: 6),
-                Text('B3', style: mediumTextStyle),
-                _WeightRatingSelector(
-                  selectedRating: _selectedBeratB3,
-                  onChanged: (val) => setState(() => _selectedBeratB3 = val),
-                ),
-                Text('Anorganik', style: mediumTextStyle),
-                _WeightRatingSelector(
-                  selectedRating: _selectedBeratAnorganik,
-                  onChanged: (val) =>
-                      setState(() => _selectedBeratAnorganik = val),
-                ),
-                Text('Organik', style: mediumTextStyle),
-                _WeightRatingSelector(
-                  selectedRating: _selectedBeratOrganik,
-                  onChanged: (val) =>
-                      setState(() => _selectedBeratOrganik = val),
-                ),
+                if (_selectedCategories.contains('B3')) ...[
+                  Text('B3', style: mediumTextStyle),
+                  _WeightRatingSelector(
+                    selectedRating: _selectedBeratB3,
+                    onChanged: (val) => setState(() => _selectedBeratB3 = val),
+                  ),
+                ],
+                if (_selectedCategories.contains('Anorganik')) ...[
+                  Text('Anorganik', style: mediumTextStyle),
+                  _WeightRatingSelector(
+                    selectedRating: _selectedBeratAnorganik,
+                    onChanged: (val) =>
+                        setState(() => _selectedBeratAnorganik = val),
+                  ),
+                ],
+                if (_selectedCategories.contains('Organik')) ...[
+                  Text('Organik', style: mediumTextStyle),
+                  _WeightRatingSelector(
+                    selectedRating: _selectedBeratOrganik,
+                    onChanged: (val) =>
+                        setState(() => _selectedBeratOrganik = val),
+                  ),
+                ],
                 UploadPhoto(
                   onFileChanged: _handleImageChanged,
                 ),

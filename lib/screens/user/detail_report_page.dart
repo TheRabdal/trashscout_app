@@ -260,53 +260,50 @@ class ReportDetailContent extends StatelessWidget {
         SizedBox(height: 6),
         LayoutBuilder(
           builder: (context, constraints) {
-            // Jika lebar cukup, tampilkan Row, jika tidak, tampilkan Column
-            if (constraints.maxWidth > 420) {
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('B3', style: mediumTextStyle),
-                        _buildWeightRatingBadge(beratB3),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Anorganik', style: mediumTextStyle),
-                        _buildWeightRatingBadge(beratAnorganik),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Organik', style: mediumTextStyle),
-                        _buildWeightRatingBadge(beratOrganik),
-                      ],
-                    ),
-                  ),
-                ],
-              );
-            } else {
-              return Column(
+            List<Widget> weightWidgets = [];
+            if (beratB3 != 0) {
+              weightWidgets.add(Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('B3', style: mediumTextStyle),
                   _buildWeightRatingBadge(beratB3),
-                  SizedBox(height: 8),
+                ],
+              ));
+            }
+            if (beratAnorganik != 0) {
+              weightWidgets.add(Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text('Anorganik', style: mediumTextStyle),
                   _buildWeightRatingBadge(beratAnorganik),
-                  SizedBox(height: 8),
+                ],
+              ));
+            }
+            if (beratOrganik != 0) {
+              weightWidgets.add(Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text('Organik', style: mediumTextStyle),
                   _buildWeightRatingBadge(beratOrganik),
                 ],
+              ));
+            }
+            if (weightWidgets.isEmpty) {
+              return Text('Tidak ada data berat sampah',
+                  style: regularTextStyle.copyWith(color: Colors.grey));
+            }
+            if (constraints.maxWidth > 420) {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: weightWidgets.map((w) => Flexible(child: w)).toList(),
+              );
+            } else {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: weightWidgets
+                    .expand((w) => [w, SizedBox(height: 8)])
+                    .toList()
+                  ..removeLast(),
               );
             }
           },
