@@ -70,15 +70,15 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Image.asset(
                 'assets/leaderboard_bg.png',
                 width: 260,
-              ),
+          ),
             ),
           ),
           SafeArea(
-            child: SingleChildScrollView(
+          child: SingleChildScrollView(
               child: Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-                child: Column(
+            child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Header glassmorphism
@@ -149,8 +149,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 color: whiteColor,
                                                 fontSize: 16),
                                             overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
+                      ),
+                    ),
                                         SizedBox(width: 4),
                                         Container(
                                           padding: EdgeInsets.symmetric(
@@ -195,60 +195,60 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ],
                                 ),
                                 child: IconButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
                                         builder: (context) => MailBoxScreen(),
-                                      ),
-                                    );
-                                  },
+                          ),
+                        );
+                      },
                                   icon: Icon(Icons.mail_outline,
                                       color: darkGreenColor, size: 22),
                                   tooltip: 'Kotak Masuk',
                                 ),
-                              ),
-                            ],
-                          ),
+                    ),
+                  ],
+                ),
                         ),
                       ),
                     ),
                     SizedBox(height: 32),
                     // Statistik laporan
-                    StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance
-                          .collection('users')
-                          .doc(user.uid)
-                          .collection('reports')
-                          .snapshots(),
-                      builder: (context, snapshot) {
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(user.uid)
+                      .collection('reports')
+                      .snapshots(),
+                  builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return Center(
-                              child: CircularProgressIndicator(
+                      return Center(
+                          child: CircularProgressIndicator(
                                   color: darkGreenColor));
-                        }
-                        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    }
+                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                           return _UserStatCard(
-                              totalCreated: 0,
-                              totalInProcess: 0,
+                        totalCreated: 0,
+                        totalInProcess: 0,
                               totalCompleted: 0);
-                        }
-                        var reports = snapshot.data!.docs;
-                        int totalCreated = reports.length;
-                        int totalInProcess = reports
-                            .where((doc) => doc['status'] == 'Diproses')
-                            .length;
-                        int totalCompleted = reports
-                            .where((doc) => doc['status'] == 'Selesai')
-                            .length;
+                    }
+                    var reports = snapshot.data!.docs;
+                    int totalCreated = reports.length;
+                    int totalInProcess = reports
+                        .where((doc) => doc['status'] == 'Diproses')
+                        .length;
+                    int totalCompleted = reports
+                        .where((doc) => doc['status'] == 'Selesai')
+                        .length;
                         return _UserStatCard(
-                          totalCreated: totalCreated,
-                          totalInProcess: totalInProcess,
-                          totalCompleted: totalCompleted,
-                        );
-                      },
-                    ),
+                      totalCreated: totalCreated,
+                      totalInProcess: totalInProcess,
+                      totalCompleted: totalCompleted,
+                    );
+                  },
+                ),
                     SizedBox(height: 32),
                     // Tombol Buat Laporan
                     Center(
@@ -264,7 +264,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         icon: Icon(Icons.add_circle_outline,
                             color: whiteColor, size: 24),
                         label: Text('Buat Laporan',
-                            style: boldTextStyle.copyWith(
+                      style: boldTextStyle.copyWith(
                                 color: whiteColor, fontSize: 18)),
                         onPressed: () {
                           Navigator.push(
@@ -284,39 +284,39 @@ class _HomeScreenState extends State<HomeScreen> {
                         Text('Riwayat Laporan Terbaru',
                             style: boldTextStyle.copyWith(
                                 color: darkGreenColor, fontSize: 22)),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => SeeAllHistoryScreen(),
-                              ),
-                            );
-                          },
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SeeAllHistoryScreen(),
+                          ),
+                        );
+                      },
                           child: Text('Lihat Semua',
-                              style: mediumTextStyle.copyWith(
+                        style: mediumTextStyle.copyWith(
                                   color: darkGreenColor, fontSize: 15)),
-                        ),
-                      ],
                     ),
+                  ],
+                ),
                     SizedBox(height: 10),
-                    StreamBuilder(
-                      stream: FirebaseFirestore.instance
-                          .collection('users')
-                          .doc(user.uid)
-                          .collection('reports')
-                          .orderBy('date', descending: true)
-                          .limit(5)
-                          .snapshots(),
+                StreamBuilder(
+                  stream: FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(user.uid)
+                      .collection('reports')
+                      .orderBy('date', descending: true)
+                      .limit(5)
+                      .snapshots(),
                       builder:
                           (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                        if (!snapshot.hasData) {
-                          return Center(
-                              child: CircularProgressIndicator(
+                    if (!snapshot.hasData) {
+                      return Center(
+                          child: CircularProgressIndicator(
                                   color: darkGreenColor));
-                        }
-                        var reports = snapshot.data!.docs;
-                        if (reports.isEmpty) {
+                    }
+                    var reports = snapshot.data!.docs;
+                    if (reports.isEmpty) {
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 32),
                             child: Center(
@@ -326,39 +326,39 @@ class _HomeScreenState extends State<HomeScreen> {
                                       color: lightGreenColor, size: 54),
                                   SizedBox(height: 10),
                                   Text('Belum ada laporan terbaru.',
-                                      style: regularTextStyle.copyWith(
+                          style: regularTextStyle.copyWith(
                                           color: darkGreyColor)),
                                 ],
-                              ),
-                            ),
-                          );
-                        }
+                          ),
+                        ),
+                      );
+                    }
                         return Column(
                           children: reports.map((report) {
-                            String formattedDate = DateFormat('dd MMMM yyyy')
-                                .format((report['date'] as Timestamp).toDate());
-                            final List<String> categories =
-                                List<String>.from(report['categories']);
+                        String formattedDate = DateFormat('dd MMMM yyyy')
+                            .format((report['date'] as Timestamp).toDate());
+                        final List<String> categories =
+                            List<String>.from(report['categories']);
                             final data = report.data() as Map<String, dynamic>?;
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 16),
                               child: _UserReportCard(
                                 report: report,
                                 formattedDate: formattedDate,
-                                categories: categories,
+                          categories: categories,
                                 data: data,
                                 getStatusColor: _getStatusColor,
                               ),
-                            );
-                          }).toList(),
                         );
-                      },
-                    ),
-                    SizedBox(height: 40),
-                  ],
+                          }).toList(),
+                    );
+                  },
                 ),
-              ),
+                    SizedBox(height: 40),
+              ],
             ),
+          ),
+        ),
           ),
         ],
       ),
@@ -393,7 +393,7 @@ class _UserStatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(18),
-      decoration: BoxDecoration(
+              decoration: BoxDecoration(
         color: whiteColor,
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
@@ -401,12 +401,12 @@ class _UserStatCard extends StatelessWidget {
             color: Colors.black12,
             blurRadius: 16,
             offset: Offset(0, 6),
-          ),
+                ),
         ],
-      ),
+            ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
           Text('Statistik Laporan',
               style:
                   boldTextStyle.copyWith(color: darkGreenColor, fontSize: 22)),
@@ -429,10 +429,10 @@ class _UserStatCard extends StatelessWidget {
                   value: totalCompleted,
                   color: Color(0xff6BC2A2),
                   icon: Icons.check_circle_rounded),
-            ],
-          ),
-        ],
-      ),
+              ],
+            ),
+          ],
+        ),
     );
   }
 }
@@ -452,7 +452,7 @@ class _AnimatedStatBox extends StatelessWidget {
     return Container(
       width: 90,
       padding: EdgeInsets.symmetric(vertical: 14, horizontal: 8),
-      decoration: BoxDecoration(
+                decoration: BoxDecoration(
         color: color.withOpacity(0.13),
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
@@ -472,7 +472,7 @@ class _AnimatedStatBox extends StatelessWidget {
           SizedBox(height: 2),
           Text(title,
               style: mediumTextStyle.copyWith(color: color, fontSize: 15)),
-        ],
+      ],
       ),
     );
   }
@@ -586,7 +586,7 @@ class _UserReportCard extends StatelessWidget {
                       style: mediumTextStyle.copyWith(
                           color: getStatusColor(report['status']),
                           fontSize: 12)),
-                ),
+            ),
                 SizedBox(width: 8),
                 ...categories.take(2).map((cat) => Container(
                       margin: EdgeInsets.only(right: 4),
@@ -616,8 +616,8 @@ class _UserReportCard extends StatelessWidget {
                       color: darkGreyColor, fontSize: 13),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                ),
               ),
+            ),
           ],
         ),
         trailing: Icon(Icons.arrow_forward_ios_rounded,
