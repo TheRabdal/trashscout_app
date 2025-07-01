@@ -8,9 +8,6 @@ import 'package:trash_scout/screens/user/see_all_history_screen.dart';
 import 'package:trash_scout/screens/user/detail_report_page.dart';
 import 'package:trash_scout/services/firestore_service.dart';
 import 'package:trash_scout/shared/theme/theme.dart';
-import 'package:trash_scout/shared/widgets/user/custom_button.dart';
-import 'package:trash_scout/shared/widgets/user/report_history.dart';
-import 'package:trash_scout/shared/widgets/user/report_recap_widget.dart';
 import 'dart:ui';
 
 class HomeScreen extends StatefulWidget {
