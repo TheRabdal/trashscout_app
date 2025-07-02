@@ -344,31 +344,59 @@ class ReportDetailContent extends StatelessWidget {
           spacing: 8.0,
           runSpacing: 4.0,
           alignment: WrapAlignment.start,
-          children: categories.map((category) {
-            return Container(
-              constraints: BoxConstraints(
-                maxWidth: 120,
-              ),
-              padding: EdgeInsets.symmetric(
-                vertical: 5,
-              ),
-              decoration: BoxDecoration(
-                color: category == 'B3' ? Colors.red : darkGreenColor,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Center(
-                child: Text(
-                  category,
-                  style: regularTextStyle.copyWith(
-                    color: Colors.white,
-                    fontSize: 15,
+          children: [
+            if (categories.contains('B3') && beratB3 != 0)
+              Container(
+                constraints: BoxConstraints(maxWidth: 120),
+                padding: EdgeInsets.symmetric(vertical: 5),
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Center(
+                  child: Text(
+                    'B3',
+                    style: regularTextStyle.copyWith(
+                        color: Colors.white, fontSize: 15),
+                    softWrap: false,
                   ),
-                  softWrap: false,
-                  // overflow: TextOverflow.ellipsis,
                 ),
               ),
-            );
-          }).toList(),
+            if (categories.contains('Anorganik') && beratAnorganik != 0)
+              Container(
+                constraints: BoxConstraints(maxWidth: 120),
+                padding: EdgeInsets.symmetric(vertical: 5),
+                decoration: BoxDecoration(
+                  color: darkGreenColor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Center(
+                  child: Text(
+                    'Anorganik',
+                    style: regularTextStyle.copyWith(
+                        color: Colors.white, fontSize: 15),
+                    softWrap: false,
+                  ),
+                ),
+              ),
+            if (categories.contains('Organik') && beratOrganik != 0)
+              Container(
+                constraints: BoxConstraints(maxWidth: 120),
+                padding: EdgeInsets.symmetric(vertical: 5),
+                decoration: BoxDecoration(
+                  color: darkGreenColor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Center(
+                  child: Text(
+                    'Organik',
+                    style: regularTextStyle.copyWith(
+                        color: Colors.white, fontSize: 15),
+                    softWrap: false,
+                  ),
+                ),
+              ),
+          ],
         ),
         SizedBox(height: 10),
         Text(

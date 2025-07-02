@@ -222,6 +222,13 @@ class _CreateReportPageState extends State<CreateReportPage> {
       List<String> categories = _selectedCategories;
       String description = _descController.text;
       String locationDetail = _locationDetailController.text;
+      bool hasValidWeight = false;
+      if (categories.contains('B3') && _selectedBeratB3 != null)
+        hasValidWeight = true;
+      if (categories.contains('Anorganik') && _selectedBeratAnorganik != null)
+        hasValidWeight = true;
+      if (categories.contains('Organik') && _selectedBeratOrganik != null)
+        hasValidWeight = true;
       if (title.isNotEmpty &&
           categories.isNotEmpty &&
           description.isNotEmpty &&
@@ -229,9 +236,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
           _latitude != null &&
           _longitude != null &&
           locationDetail.isNotEmpty &&
-          _selectedBeratAnorganik != null &&
-          _selectedBeratOrganik != null &&
-          _selectedBeratB3 != null) {
+          hasValidWeight) {
         try {
           User? user = FirebaseAuth.instance.currentUser;
           if (user != null) {
@@ -282,7 +287,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-                "Harap isi semua field dan pilih rating berat untuk semua kategori"),
+                "Harap isi semua field dan pilih rating berat untuk minimal satu kategori yang dipilih"),
           ),
         );
       }
@@ -339,6 +344,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
                   _WeightRatingSelector(
                     selectedRating: _selectedBeratB3,
                     onChanged: (val) => setState(() => _selectedBeratB3 = val),
+                    showTidakAda: false,
                   ),
                 ],
                 if (_selectedCategories.contains('Anorganik')) ...[
@@ -347,6 +353,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
                     selectedRating: _selectedBeratAnorganik,
                     onChanged: (val) =>
                         setState(() => _selectedBeratAnorganik = val),
+                    showTidakAda: false,
                   ),
                 ],
                 if (_selectedCategories.contains('Organik')) ...[
@@ -355,6 +362,7 @@ class _CreateReportPageState extends State<CreateReportPage> {
                     selectedRating: _selectedBeratOrganik,
                     onChanged: (val) =>
                         setState(() => _selectedBeratOrganik = val),
+                    showTidakAda: false,
                   ),
                 ],
                 UploadPhoto(
@@ -957,14 +965,18 @@ class _SelectLocationState extends State<SelectLocation> {
 class _WeightRatingSelector extends StatelessWidget {
   final int? selectedRating;
   final ValueChanged<int> onChanged;
+  final bool showTidakAda;
   const _WeightRatingSelector(
-      {required this.selectedRating, required this.onChanged});
+      {required this.selectedRating,
+      required this.onChanged,
+      this.showTidakAda = true});
 
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> options = [
       {'label': 'Pilih terlebih dahulu', 'rating': null, 'desc': ''},
-      {'label': 'Tidak ada', 'rating': 0, 'desc': 'Tidak ada sampah'},
+      if (showTidakAda)
+        {'label': 'Tidak ada', 'rating': 0, 'desc': 'Tidak ada sampah'},
       {'label': '< 1 kg', 'rating': 4, 'desc': 'Baik'},
       {'label': '1 – 2 kg', 'rating': 3, 'desc': 'Cukup'},
       {'label': '3 – 4 kg', 'rating': 2, 'desc': 'Buruk'},

@@ -754,9 +754,15 @@ class _HDReportCard extends StatelessWidget {
               latitude: report['latitude'],
               longitude: report['longitude'],
               locationDetail: report['locationDetail'],
-              beratB3: report['beratB3'] ?? 1,
-              beratAnorganik: report['beratAnorganik'] ?? 1,
-              beratOrganik: report['beratOrganik'] ?? 1,
+              beratB3: report['categories'].contains('B3')
+                  ? (report['beratB3'] ?? 0)
+                  : 0,
+              beratAnorganik: report['categories'].contains('Anorganik')
+                  ? (report['beratAnorganik'] ?? 0)
+                  : 0,
+              beratOrganik: report['categories'].contains('Organik')
+                  ? (report['beratOrganik'] ?? 0)
+                  : 0,
             ),
           ),
         );

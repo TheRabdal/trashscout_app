@@ -66,9 +66,11 @@ class ReportItemWidget extends StatelessWidget {
                     latitude: latitude,
                     longitude: longitude,
                     locationDetail: locationDetail,
-                    beratB3: beratB3,
-                    beratAnorganik: beratAnorganik,
-                    beratOrganik: beratOrganik,
+                    beratB3: categories.contains('B3') ? beratB3 : 0,
+                    beratAnorganik:
+                        categories.contains('Anorganik') ? beratAnorganik : 0,
+                    beratOrganik:
+                        categories.contains('Organik') ? beratOrganik : 0,
                   ),
                 ),
               );

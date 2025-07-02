@@ -51,8 +51,10 @@ class _AdminPriorityScreenState extends State<AdminPriorityScreen> {
           // Ambil kategori dari laporan
           List<String> categories =
               List<String>.from(reportData['categories'] ?? []);
-          // Filter hanya jika ada kategori B3
-          if (categories.contains('B3')) {
+          // Filter jika ada kategori B3, Anorganik, atau Organik
+          if (categories.contains('B3') ||
+              categories.contains('Anorganik') ||
+              categories.contains('Organik')) {
             reportData['date'] = (reportData['date'] as Timestamp).toDate();
             reportData['userId'] = userDoc.id;
             reportData['reportId'] = reportDoc.id;
@@ -69,9 +71,9 @@ class _AdminPriorityScreenState extends State<AdminPriorityScreen> {
           reports.sort((a, b) {
             double getSAWScore(List<String> categories) {
               double score = 0.0;
-              if (categories.contains('Beracun')) score += 0.5;
-              if (categories.contains('Berbahaya')) score += 0.3;
-              if (categories.contains('Medis')) score += 0.2;
+              if (categories.contains('B3')) score += 0.5;
+              if (categories.contains('Anorganik')) score += 0.3;
+              if (categories.contains('Organik')) score += 0.2;
               return score;
             }
 
@@ -343,11 +345,19 @@ class _AdminPriorityScreenState extends State<AdminPriorityScreen> {
                                             longitude: report['longitude'],
                                             locationDetail:
                                                 report['locationDetail'],
-                                            beratB3: report['beratB3'] ?? 1,
-                                            beratAnorganik:
-                                                report['beratAnorganik'] ?? 1,
-                                            beratOrganik:
-                                                report['beratOrganik'] ?? 1,
+                                            beratB3: report['categories']
+                                                    .contains('B3')
+                                                ? (report['beratB3'] ?? 0)
+                                                : 0,
+                                            beratAnorganik: report['categories']
+                                                    .contains('Anorganik')
+                                                ? (report['beratAnorganik'] ??
+                                                    0)
+                                                : 0,
+                                            beratOrganik: report['categories']
+                                                    .contains('Organik')
+                                                ? (report['beratOrganik'] ?? 0)
+                                                : 0,
                                           ),
                                         ),
                                       );
