@@ -491,7 +491,7 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                                             child: (!forceManual)
                                                 ? DropdownButtonFormField<
                                                     String>(
-                                                    value: dropdownValue,
+                                                    initialValue: dropdownValue,
                                                     isExpanded: true,
                                                     icon: Icon(
                                                         Icons
@@ -612,7 +612,7 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                                       child: SizedBox(
                                         width: 70,
                                         child: DropdownButtonFormField<String>(
-                                          value: criteriaControllers[i][0]
+                                          initialValue: criteriaControllers[i][0]
                                                   .text
                                                   .isNotEmpty
                                               ? criteriaControllers[i][0].text
@@ -662,7 +662,7 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                                       child: SizedBox(
                                         width: 70,
                                         child: DropdownButtonFormField<String>(
-                                          value: criteriaControllers[i][1]
+                                          initialValue: criteriaControllers[i][1]
                                                   .text
                                                   .isNotEmpty
                                               ? criteriaControllers[i][1].text
@@ -712,7 +712,7 @@ class _SawDetailScreenState extends State<SawDetailScreen> {
                                       child: SizedBox(
                                         width: 70,
                                         child: DropdownButtonFormField<String>(
-                                          value: criteriaControllers[i][2]
+                                          initialValue: criteriaControllers[i][2]
                                                   .text
                                                   .isNotEmpty
                                               ? criteriaControllers[i][2].text

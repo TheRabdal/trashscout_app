@@ -990,7 +990,7 @@ class _WeightRatingSelector extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         DropdownButtonFormField<int>(
-          value: selectedRating,
+          initialValue: selectedRating,
           isExpanded: true,
           icon: Icon(Icons.arrow_drop_down_rounded,
               color: darkGreenColor, size: 28),

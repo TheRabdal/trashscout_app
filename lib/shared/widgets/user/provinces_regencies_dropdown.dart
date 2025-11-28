@@ -107,7 +107,7 @@ class _ProvincesRegenciesDropdownState
               color: blackColor,
               fontSize: 15,
             ),
-            value: _selectedProvinceId,
+            initialValue: _selectedProvinceId,
             onChanged: (String? newValue) {
               setState(() {
                 _selectedProvinceId = newValue;
@@ -174,7 +174,7 @@ class _ProvincesRegenciesDropdownState
               color: blackColor,
               fontSize: 15,
             ),
-            value: _selectedRegencyId,
+            initialValue: _selectedRegencyId,
             onChanged: (String? newValue) {
               try {
                 setState(() {
